@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="Domains">
+		<xs:complexType>
+			<xs:sequence>
+
+				<xs:element name="Options" maxOccurs="1" minOccurs="1">
+					<xs:complexType>
+						<xs:attribute name="regexType" type="type_regexType"
+							use="required"/>
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="Domain" minOccurs="1" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:choice>
+							<xs:element name="DocRoot" type="xs:string"/>
+							<xs:element name="Redirect" type="type_redirect"/>
+						</xs:choice>
+						<xs:attribute name="regexType" type="type_regexType"
+							use="optional"/>
+						<xs:attribute name="name" type="xs:string" use="required"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:simpleType name="type_regexType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="none"/>
+			<xs:enumeration value="withPort"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="type_redirectCode">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="300"/>
+			<xs:maxInclusive value="307"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="type_redirect">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="code" type="type_redirectCode" use="optional" default="301"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:schema>

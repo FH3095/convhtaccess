@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <Domains xmlns="http://www.4fh.eu/xml/ConvertHtaccessLighty/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:SchemaLocation="http://www.4fh.eu/xml/ConvertHtaccessLighty/ http://www.4fh.eu/xml/ConvertHtaccessLighty.xsd"> -->
+<Domains xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="Schema.xsd">
+	<Options regexType="withPort"/>
+	<Domain name="www.4fh.eu">
+		<DocRoot>/home/fh/domains/4fh.eu/www</DocRoot>
+	</Domain>
+	<Domain name="4fh.eu">
+		<Redirect code="301">http://www.4fh.eu/</Redirect>
+	</Domain>
+</Domains>
