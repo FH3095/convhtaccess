@@ -6,23 +6,26 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import eu._4fh.convertHtaccessLighty.Main;
+
 public class HtAccessParser {
 	private StringBuffer buf;
 	private File file;
+	static final private String nl = Main.nl;
 
 	public HtAccessParser() {
 		buf = new StringBuffer();
 	}
 
-	public void parseFile(File file) {
+	public StringBuffer parseFile(File file) {
 		this.file = file;
 
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String line = "";
 			while (line != null) {
-				line = reader.readLine();
 				parseLine(line);
+				line = reader.readLine();
 			}
 			reader.close();
 		} catch (FileNotFoundException e) {
@@ -32,6 +35,7 @@ public class HtAccessParser {
 			throw new RuntimeException("Error while reading file "
 					+ file.getAbsolutePath(), e);
 		}
+		return buf;
 	}
 
 	protected void parseLine(final String line) {
@@ -40,12 +44,16 @@ public class HtAccessParser {
 			parseComment(line);
 		} else if (lineBuf.startsWith("options")) {
 			parseOptions(line);
+		} else if (lineBuf.isEmpty()) {
+			// Ignore
+		} else {
+			System.err.println(formatError("Unknown command", line));
 		}
 	}
 
 	protected void parseComment(String line) {
 		buf.append(line);
-		buf.append("\n");
+		buf.append(nl);
 	}
 
 	protected void parseOptions(String line) {
@@ -74,7 +82,7 @@ public class HtAccessParser {
 				} else {
 					buf.append("disable\"");
 				}
-				buf.append("\n");
+				buf.append(nl);
 			} else {
 				System.err.println(formatError("Unknown option " + parts[i],
 						line));

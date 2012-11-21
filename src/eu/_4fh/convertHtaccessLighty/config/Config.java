@@ -114,8 +114,10 @@ public class Config {
 			}
 			String name = node.getAttributes().getNamedItem("name")
 					.getNodeValue();
+			short index = Short.parseShort(node.getAttributes()
+					.getNamedItem("index").getNodeValue());
 			DomainOption[] domainOptions = parseDomainOptions(node);
-			return new Domain(name, type, domainOptions);
+			return new Domain(name, index, type, domainOptions);
 		}
 		throw new RuntimeException("Found unsupported Node in Config-File: "
 				+ node.getNodeName() + " ; " + node.toString());
@@ -137,9 +139,9 @@ public class Config {
 		if (node.getLocalName().equals("Redirect")) {
 			short code = Short.parseShort(node.getAttributes()
 					.getNamedItem("code").getNodeValue());
-			return new Redirect(node.getNodeValue(), code);
+			return new Redirect(node.getTextContent().trim(), code);
 		} else if (node.getLocalName().equals("DocRoot")) {
-			return new DocRoot(node.getNodeValue());
+			return new DocRoot(node.getTextContent().trim());
 		}
 		throw new RuntimeException("Can't parse invalid Domain-Sub-Node "
 				+ node.getNodeName() + " ; " + node.toString());

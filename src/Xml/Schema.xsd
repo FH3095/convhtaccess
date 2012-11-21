@@ -20,6 +20,8 @@
 						<xs:attribute name="regexType" type="type_regexType"
 							use="optional"/>
 						<xs:attribute name="name" type="xs:string" use="required"/>
+						<xs:attribute name="index" type="type_domainIndex"
+							use="required"/>
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>
@@ -32,8 +34,14 @@
 			<xs:enumeration value="withPort"/>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:simpleType name="type_domainIndex">
+		<xs:restriction base="xs:nonNegativeInteger">
+			<xs:minInclusive value="000"/>
+			<xs:maxInclusive value="999"/>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:simpleType name="type_redirectCode">
-		<xs:restriction base="xs:integer">
+		<xs:restriction base="xs:nonNegativeInteger">
 			<xs:minInclusive value="300"/>
 			<xs:maxInclusive value="307"/>
 		</xs:restriction>
@@ -41,7 +49,8 @@
 	<xs:complexType name="type_redirect">
 		<xs:simpleContent>
 			<xs:extension base="xs:string">
-				<xs:attribute name="code" type="type_redirectCode" use="optional" default="301"/>
+				<xs:attribute name="code" type="type_redirectCode" use="optional"
+					default="301"/>
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>

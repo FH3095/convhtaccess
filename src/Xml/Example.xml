@@ -4,10 +4,10 @@
 <Domains xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Schema.xsd">
 	<Options regexType="withPort"/>
-	<Domain name="www.4fh.eu">
+	<Domain name="www.4fh.eu" index="50">
 		<DocRoot>/home/fh/domains/4fh.eu/www</DocRoot>
 	</Domain>
-	<Domain name="4fh.eu">
+	<Domain name="4fh.eu" index="99">
 		<Redirect code="301">http://www.4fh.eu/</Redirect>
 	</Domain>
 </Domains>
