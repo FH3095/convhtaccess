@@ -2,7 +2,6 @@ package eu._4fh.convertHtaccessLighty;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -14,7 +13,7 @@ import eu._4fh.convertHtaccessLighty.config.options.Domain;
 import eu._4fh.convertHtaccessLighty.config.options.DomainOption;
 import eu._4fh.convertHtaccessLighty.config.options.Redirect;
 import eu._4fh.convertHtaccessLighty.config.options.RegexType;
-import eu._4fh.convertHtaccessLighty.htaccess.HtAccessParser;
+import eu._4fh.convertHtaccessLighty.htaccess.HtAccessTreeParser;
 
 public class Main {
 	private Config config;
@@ -31,7 +30,7 @@ public class Main {
 
 		while (domains.hasNext()) {
 			Domain domain = domains.next();
-			String data = createDomainEntry(domain);
+			String data = createDomain(domain);
 
 			File file = new File(domainIndexFormater.format(domain.index) + "-"
 					+ domain.name);
@@ -46,7 +45,7 @@ public class Main {
 		}
 	}
 
-	protected String createDomainEntry(Domain domain) {
+	protected String createDomain(Domain domain) {
 		StringBuffer buf = new StringBuffer();
 
 		createDomainCondition(buf, domain);
@@ -58,43 +57,13 @@ public class Main {
 			createDomainOption(buf, option);
 			if (option instanceof DocRoot) {
 				String docRoot = ((DocRoot) option).docRoot;
-				parseHtAccessFiles(buf, new File(docRoot), new File(docRoot));
+				new HtAccessTreeParser(buf, new File(docRoot)).parse();
 			}
 		}
 
 		buf.append("}").append(nl);
 
 		return buf.toString();
-	}
-
-	protected void parseHtAccessFiles(StringBuffer buf, File docRoot, File dir) {
-		createPathCondition(buf, docRoot, dir);
-		File htAccessFile = new File(dir, ".htaccess");
-		if (htAccessFile.exists()) {
-			buf.append(new HtAccessParser().parseFile(htAccessFile));
-		}
-		File subDirs[] = dir.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File file) {
-				if (file.isDirectory()) {
-					return true;
-				}
-				return false;
-			}
-		});
-		for (int i = 0; i < subDirs.length; ++i) {
-			parseHtAccessFiles(buf, docRoot, subDirs[i]);
-		}
-		buf.append("}");
-		buf.append(nl);
-	}
-
-	protected void createPathCondition(StringBuffer buf, File docRoot, File dir) {
-		buf.append("$HTTP[\"url\"] =~ \"^");
-		String urlDir = dir.getAbsolutePath().substring(
-				docRoot.getAbsolutePath().length());
-		buf.append(urlDir.replace(File.separator, "/"));
-		buf.append("\" {").append(nl);
 	}
 
 	protected void createDomainCondition(StringBuffer buf, Domain domain) {
@@ -110,13 +79,13 @@ public class Main {
 
 	protected void createDomainOption(StringBuffer buf, DomainOption option) {
 		if (option instanceof DocRoot) {
-			buf.append("server.document-root = \"")
+			buf.append("\tserver.document-root = \"")
 					.append(((DocRoot) option).docRoot).append("\"");
 		} else if (option instanceof Redirect) {
-			buf.append("url.redirect = ( \".*\" => \"")
+			buf.append("\turl.redirect = ( \".*\" => \"")
 					.append(((Redirect) option).redirectTo).append("\" )")
 					.append(nl);
-			buf.append("url.redirect-code = ")
+			buf.append("\turl.redirect-code = ")
 					.append(((Redirect) option).redirectCode).append(nl);
 		} else {
 			throw new RuntimeException("Can't handle DomainOption of type "
