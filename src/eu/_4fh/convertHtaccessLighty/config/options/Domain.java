@@ -8,11 +8,16 @@ public class Domain extends ConfigNode {
 	final public short index;
 	final public RegexType regexType;
 	final public ArrayList<DomainOption> domainOptions;
+	final public String filePrefix;
+	final public String filePostfix;
 
-	public Domain(String name, final short index, RegexType regexType,
+	public Domain(String name, final short index, final String filePrefix,
+			final String filePostfix, RegexType regexType,
 			DomainOption... options) {
 		this.name = name;
 		this.index = index;
+		this.filePrefix = filePrefix;
+		this.filePostfix = filePostfix;
 		this.regexType = regexType;
 		this.domainOptions = new ArrayList<DomainOption>(Arrays.asList(options));
 	}

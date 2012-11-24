@@ -26,10 +26,14 @@ import eu._4fh.convertHtaccessLighty.config.options.RegexType;
 
 public class Config {
 	private RegexType defaultRegexType;
+	private String defaultFilePrefix;
+	private String defaultFilePostfix;
 	private ArrayList<Domain> domains;
 
 	public Config() {
 		defaultRegexType = null;
+		defaultFilePrefix = null;
+		defaultFilePostfix = null;
 		domains = new ArrayList<Domain>();
 	}
 
@@ -82,6 +86,14 @@ public class Config {
 		return defaultRegexType;
 	}
 
+	public String getDefaultFilePrefix() {
+		return defaultFilePrefix;
+	}
+
+	public String getDefaultFilePostfix() {
+		return defaultFilePostfix;
+	}
+
 	public ListIterator<Domain> getDomains() {
 		return domains.listIterator();
 	}
@@ -93,6 +105,8 @@ public class Config {
 						"Found more than one Option-Node in config!");
 			}
 			defaultRegexType = ((Option) node).regexType;
+			defaultFilePrefix = ((Option) node).prefix;
+			defaultFilePostfix = ((Option) node).postfix;
 		} else if (node instanceof Domain) {
 			domains.add((Domain) node);
 		} else {
@@ -105,19 +119,34 @@ public class Config {
 		if (node.getLocalName().equals("Options")) {
 			RegexType type = parseRegexTypeAttribute(node.getAttributes()
 					.getNamedItem("regexType").getNodeValue());
-			return new Option(type);
+			String prefix = node.getAttributes().getNamedItem("prefix")
+					.getNodeValue();
+			String postfix = node.getAttributes().getNamedItem("postfix")
+					.getNodeValue();
+			return new Option(type, prefix, postfix);
 		} else if (node.getLocalName().equals("Domain")) {
 			RegexType type = getDefaultRegexType();
 			if (node.getAttributes().getNamedItem("regexType") != null) {
 				type = parseRegexTypeAttribute(node.getAttributes()
 						.getNamedItem("regexType").getNodeValue());
 			}
+			String filePrefix = getDefaultFilePrefix();
+			if (node.getAttributes().getNamedItem("prefix") != null) {
+				filePrefix = node.getAttributes().getNamedItem("prefix")
+						.getNodeValue();
+			}
+			String filePostfix = getDefaultFilePostfix();
+			if (node.getAttributes().getNamedItem("postfix") != null) {
+				filePostfix = node.getAttributes().getNamedItem("postfix")
+						.getNodeValue();
+			}
 			String name = node.getAttributes().getNamedItem("name")
 					.getNodeValue();
 			short index = Short.parseShort(node.getAttributes()
 					.getNamedItem("index").getNodeValue());
 			DomainOption[] domainOptions = parseDomainOptions(node);
-			return new Domain(name, index, type, domainOptions);
+			return new Domain(name, index, filePrefix, filePostfix, type,
+					domainOptions);
 		}
 		throw new RuntimeException("Found unsupported Node in Config-File: "
 				+ node.getNodeName() + " ; " + node.toString());

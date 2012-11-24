@@ -32,8 +32,9 @@ public class Main {
 			Domain domain = domains.next();
 			String data = createDomain(domain);
 
-			File file = new File(domainIndexFormater.format(domain.index) + "-"
-					+ domain.name);
+			File file = new File(domain.filePrefix
+					+ domainIndexFormater.format(domain.index) + "-"
+					+ domain.name + domain.filePostfix);
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 				writer.write(data);

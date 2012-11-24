@@ -17,7 +17,6 @@ class HtAccessParser {
 	final private File file;
 	final private int nestedLevel;
 	private StringBuffer input;
-	// static final private String nl = Main.nl;
 
 	public HtAccessParser(final StringBuffer buf, final File htAccessFile,
 			final int nestedLevel) {

@@ -8,6 +8,10 @@
 					<xs:complexType>
 						<xs:attribute name="regexType" type="type_regexType"
 							use="required"/>
+						<xs:attribute name="prefix" type="type_domainPrefixPostfix"
+							use="required"/>
+						<xs:attribute name="postfix" type="type_domainPrefixPostfix"
+							use="required"/>
 					</xs:complexType>
 				</xs:element>
 
@@ -22,6 +26,10 @@
 						<xs:attribute name="name" type="xs:string" use="required"/>
 						<xs:attribute name="index" type="type_domainIndex"
 							use="required"/>
+						<xs:attribute name="prefix" type="type_domainPrefixPostfix"
+							use="optional"/>
+						<xs:attribute name="postfix" type="type_domainPrefixPostfix"
+							use="optional"/>
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>
@@ -32,6 +40,10 @@
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="none"/>
 			<xs:enumeration value="withPort"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="type_domainPrefixPostfix">
+		<xs:restriction base="xs:string">
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="type_domainIndex">
