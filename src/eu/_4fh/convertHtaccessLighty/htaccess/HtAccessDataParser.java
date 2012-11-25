@@ -1,69 +1,74 @@
 package eu._4fh.convertHtaccessLighty.htaccess;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 
 import eu._4fh.convertHtaccessLighty.Main;
 
 class HtAccessDataParser {
 	private final StringBuffer buf;
-	private final File target;
 	private final String data;
 	private final int nestedLevel;
+	private final File src;
 
-	protected HtAccessDataParser(final StringBuffer buf, final File target,
-			final String data, final int nestedLevel) {
+	protected HtAccessDataParser(final StringBuffer buf, final String data,
+			final int nestedLevel, final File src) {
 		this.buf = buf;
-		this.target = target;
 		this.data = data;
 		this.nestedLevel = nestedLevel;
-	}
-
-	protected void writeLine(final String content) {
-		for (int i = 0; i < nestedLevel; ++i) {
-			buf.append("\t");
-		}
-		buf.append(content);
-		buf.append(Main.nl);
+		this.src = src;
 	}
 
 	public void parse() {
-
-	}
-
-	public StringBuffer parseFile(File file) {
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String line = "";
-			while (line != null) {
-				parseLine(line);
-				line = reader.readLine();
-			}
-			reader.close();
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException("Can't find file "
-					+ file.getAbsolutePath(), e);
-		} catch (IOException e) {
-			throw new RuntimeException("Error while reading file "
-					+ file.getAbsolutePath(), e);
+		String lines[] = data.split(Main.nl);
+		for (int i = 0; i < lines.length; ++i) {
+			parseLine(lines[i]);
 		}
-		return buf;
 	}
 
 	protected void parseLine(final String line) {
 		String lineBuf = line.trim().toLowerCase();
 		if (lineBuf.startsWith("#")) {
-			// parseComment(line);
+			parseComment(line);
 		} else if (lineBuf.startsWith("options")) {
 			parseOptions(line);
 		} else if (lineBuf.isEmpty()) {
 			// Ignore
+		} else if (lineBuf.startsWith("allow")) {
+			parseAllow(line);
+		} else if (lineBuf.startsWith("deny")) {
+			parseDeny(line);
+		} else if (lineBuf.startsWith("order")) {
+			parseOrder(line);
 		} else {
-			System.err.println(formatError("Unknown command", line));
+			System.out.println(formatError("Unknown command", line));
 		}
+	}
+
+	private void parseOrder(String line) {
+		System.out
+				.println(formatError(
+						"Found Order-Command, but with lighty there is no way to use Allow-Commands. So Order-Commands are senseless and therefor ignored.",
+						line));
+	}
+
+	private void parseAllow(String line) {
+		System.out
+				.println(formatError(
+						"Found Allow-Command, but lighty only knows Deny-Commands, so there is no way to implement Allow-Commands.",
+						line));
+	}
+
+	private void parseDeny(String line) {
+		if (!line.matches("^deny\\s+from\\s+all$")) {
+			System.out.println(formatError(
+					"Currently only \"deny from all\" is implemented.", line));
+			return;
+		}
+		Main.writeIndentLine(buf, nestedLevel, "url.access-deny = (\"\")");
+	}
+
+	private void parseComment(final String line) {
+		Main.writeIndentLine(buf, nestedLevel, line);
 	}
 
 	protected void parseOptions(String line) {
@@ -86,23 +91,18 @@ class HtAccessDataParser {
 			} else if (parts[i].equals("followsymlinks")) {
 				// Ignore
 			} else if (parts[i].equals("indexes")) {
-				buf.append("dir-listing.activate = \"");
-				if (start == '+' || start == ' ') {
-					buf.append("enable\"");
-				} else {
-					buf.append("disable\"");
-				}
-				buf.append(Main.nl);
+				Main.writeIndentLine(buf, nestedLevel,
+						"dir-listing.activate = \"", (start == '+'
+								|| start == ' ' ? "enable\"" : "disable\""));
 			} else {
-				System.err.println(formatError("Unknown option " + parts[i],
+				System.out.println(formatError("Unknown option " + parts[i],
 						line));
 			}
 		}
 	}
 
 	protected String formatError(String error, String line) {
-		return "Error while parsing file " + target.getAbsolutePath()
-				+ " with line \'" + line + "\': " + error;
+		return "Error while parsing file " + src.getAbsolutePath() + " line \'"
+				+ line + "\': " + error;
 	}
-
 }

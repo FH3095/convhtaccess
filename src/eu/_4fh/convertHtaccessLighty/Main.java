@@ -12,12 +12,23 @@ import eu._4fh.convertHtaccessLighty.config.options.DocRoot;
 import eu._4fh.convertHtaccessLighty.config.options.Domain;
 import eu._4fh.convertHtaccessLighty.config.options.DomainOption;
 import eu._4fh.convertHtaccessLighty.config.options.Redirect;
-import eu._4fh.convertHtaccessLighty.config.options.RegexType;
 import eu._4fh.convertHtaccessLighty.htaccess.HtAccessTreeParser;
 
 public class Main {
 	private Config config;
 	static final public String nl = "\n";
+	static final public String indent = "\t";
+
+	static public void writeIndentLine(final StringBuffer buf,
+			final int nestedLevel, final String... content) {
+		for (int i = 0; i < nestedLevel; ++i) {
+			buf.append(indent);
+		}
+		for (int i = 0; i < content.length; ++i) {
+			buf.append(content[i]);
+		}
+		buf.append(nl);
+	}
 
 	private Main() {
 		config = new Config();
@@ -62,37 +73,41 @@ public class Main {
 			}
 		}
 
-		buf.append("}").append(nl);
+		writeIndentLine(buf, 0, "}");
 
 		return buf.toString();
 	}
 
 	protected void createDomainCondition(StringBuffer buf, Domain domain) {
-		buf.append("$HTTP[\"host\"] =");
-		if (domain.regexType == RegexType.NONE) {
-			buf.append("= \"").append(domain.name).append("\"");
-		} else if (domain.regexType == RegexType.WITH_PORT) {
-			String tmp = domain.name.replace(".", "\\.");
-			buf.append("~ \"^").append(tmp).append("(\\:[0-9]+)?$\"");
+		String regex = "";
+		switch (domain.regexType) {
+			case NONE :
+				regex = "= \"" + domain.name + "\"";
+				break;
+			case WITH_PORT :
+				regex = "~ \"^" + domain.name.replace(".", "\\.")
+						+ "(\\:[0-9]+)?$\"";
+				break;
+			default :
+				throw new RuntimeException("Got invalid regexType: "
+						+ domain.regexType);
 		}
-		buf.append(" {").append(nl);
+		writeIndentLine(buf, 0, "$HTTP[\"host\"] =", regex, " {");
 	}
 
 	protected void createDomainOption(StringBuffer buf, DomainOption option) {
 		if (option instanceof DocRoot) {
-			buf.append("\tserver.document-root = \"")
-					.append(((DocRoot) option).docRoot).append("\"");
+			writeIndentLine(buf, 1, "server.document-root = \"",
+					((DocRoot) option).docRoot, "\"");
 		} else if (option instanceof Redirect) {
-			buf.append("\turl.redirect = ( \".*\" => \"")
-					.append(((Redirect) option).redirectTo).append("\" )")
-					.append(nl);
-			buf.append("\turl.redirect-code = ")
-					.append(((Redirect) option).redirectCode).append(nl);
+			writeIndentLine(buf, 1, "url.redirect = ( \".*\" => \"",
+					((Redirect) option).redirectTo, "\" )");
+			writeIndentLine(buf, 1, "url.redirect-code = ",
+					Short.toString(((Redirect) option).redirectCode));
 		} else {
 			throw new RuntimeException("Can't handle DomainOption of type "
 					+ option.getClass().getCanonicalName());
 		}
-		buf.append(nl);
 	}
 
 	public static void main(String[] args) {
