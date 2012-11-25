@@ -1,16 +1,22 @@
 package eu._4fh.convertHtaccessLighty.htaccess;
 
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.LinkedList;
+import java.util.List;
 
 import eu._4fh.convertHtaccessLighty.Main;
+import eu._4fh.convertHtaccessLighty.htaccess.data.Auth;
+import eu._4fh.convertHtaccessLighty.htaccess.data.DataHandler;
+import eu._4fh.convertHtaccessLighty.htaccess.data.Options;
+import eu._4fh.convertHtaccessLighty.htaccess.data.OrderAllowDeny;
+import eu._4fh.convertHtaccessLighty.htaccess.data.Rewrite;
 
-class HtAccessDataParser {
+public class HtAccessDataParser {
 	private final StringBuffer buf;
 	private final String data;
 	private final int nestedLevel;
 	private final File src;
+	private final DataHandler handler[];
 
 	protected HtAccessDataParser(final StringBuffer buf, final String data,
 			final int nestedLevel, final File src) {
@@ -18,6 +24,12 @@ class HtAccessDataParser {
 		this.data = data;
 		this.nestedLevel = nestedLevel;
 		this.src = src;
+		List<DataHandler> handlerList = new LinkedList<DataHandler>();
+		handlerList.add(new OrderAllowDeny());
+		handlerList.add(new Rewrite());
+		handlerList.add(new Options());
+		handlerList.add(new Auth());
+		handler = handlerList.toArray(new DataHandler[1]);
 	}
 
 	public void parse() {
@@ -25,84 +37,40 @@ class HtAccessDataParser {
 		for (int i = 0; i < lines.length; ++i) {
 			parseLine(lines[i]);
 		}
+		for (DataHandler handler : this.handler) {
+			handler.write(buf, nestedLevel);
+		}
 	}
 
 	protected void parseLine(final String line) {
 		String lineBuf = line.trim().toLowerCase();
-		if (lineBuf.startsWith("#")) {
+		DataHandler handler = findDataHandler(line);
+		if (handler != null) {
+			try {
+				handler.parseCommand(line);
+			} catch (DataHandler.ParseException e) {
+				System.out.println(e.getLocalizedMessage());
+			}
+		} else if (lineBuf.startsWith("#")) {
 			parseComment(line);
-		} else if (lineBuf.startsWith("options")) {
-			parseOptions(line);
 		} else if (lineBuf.isEmpty()) {
 			// Ignore
-		} else if (lineBuf.startsWith("allow")) {
-			parseAllow(line);
-		} else if (lineBuf.startsWith("deny")) {
-			parseDeny(line);
-		} else if (lineBuf.startsWith("order")) {
-			parseOrder(line);
 		} else {
 			System.out.println(formatError("Unknown command", line));
 		}
 	}
 
-	private void parseOrder(String line) {
-		System.out
-				.println(formatError(
-						"Found Order-Command, but with lighty there is no way to use Allow-Commands. So Order-Commands are senseless and therefor ignored.",
-						line));
-	}
-
-	private void parseAllow(String line) {
-		System.out
-				.println(formatError(
-						"Found Allow-Command, but lighty only knows Deny-Commands, so there is no way to implement Allow-Commands.",
-						line));
-	}
-
-	private void parseDeny(String line) {
-		Matcher m = Pattern.compile("^deny\\s+from\\s+all$",
-				Pattern.CASE_INSENSITIVE).matcher(line);
-		if (!m.matches()) {
-			System.out.println(formatError(
-					"Currently only \"deny from all\" is implemented.", line));
-			return;
+	private DataHandler findDataHandler(final String line) {
+		for (DataHandler handler : this.handler) {
+			if (handler.canParseLine(line)) {
+				return handler;
+			}
 		}
-		Main.writeIndentLine(buf, nestedLevel, "url.access-deny = (\"\")");
+		return null;
 	}
 
 	private void parseComment(final String line) {
 		Main.writeIndentLine(buf, nestedLevel, line);
-	}
-
-	protected void parseOptions(String line) {
-		String[] parts = line.toLowerCase().replace("  ", " ").split(" ", 0);
-		for (int i = 1; i < parts.length; ++i) {
-			char start = ' ';
-			if (parts[i].startsWith("+")) {
-				start = '+';
-			} else if (parts[i].startsWith("-")) {
-				start = '-';
-			}
-			if (start != ' ') {
-				parts[i] = parts[i].substring(1);
-			}
-
-			if (parts[i].equals("none")) {
-				// Ignore
-			} else if (parts[i].equals("execcgi")) {
-				// Ignore
-			} else if (parts[i].equals("followsymlinks")) {
-				// Ignore
-			} else if (parts[i].equals("indexes")) {
-				Main.writeIndentLine(buf, nestedLevel,
-						"dir-listing.activate = \"", (start == '+'
-								|| start == ' ' ? "enable\"" : "disable\""));
-			} else {
-				System.out.println(formatError("Unknown option " + parts[i],
-						line));
-			}
-		}
 	}
 
 	protected String formatError(String error, String line) {
