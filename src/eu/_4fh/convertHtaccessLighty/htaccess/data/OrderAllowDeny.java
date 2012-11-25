@@ -17,10 +17,10 @@ public class OrderAllowDeny extends DataHandler {
 
 	private void parseOrder(String line) throws ParseException {
 		Matcher matcherAllowDeny = Pattern.compile(
-				"^\\s+order\\s+allow\\s*,\\s*deny\\s+$",
+				"^\\s*order\\s+allow\\s*,\\s*deny\\s*$",
 				Pattern.CASE_INSENSITIVE).matcher(line);
 		Matcher matcherDenyAllow = Pattern.compile(
-				"^\\s+order\\s+allow\\s*,\\s*deny\\s+$",
+				"^\\s*order\\s+allow\\s*,\\s*deny\\s*$",
 				Pattern.CASE_INSENSITIVE).matcher(line);
 		if (matcherAllowDeny.matches()) {
 			orderDenyLast = true;
