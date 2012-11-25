@@ -8,9 +8,15 @@ import eu._4fh.convertHtaccessLighty.htaccess.HtAccessConverter.TreeNode;
 public class HtAccessTreeParser {
 	private StringBuffer buf;
 	private File root;
-	public HtAccessTreeParser(StringBuffer buf, File root) {
+	private final String[] inActiveModules;
+	private final String[] activeModules;
+
+	public HtAccessTreeParser(StringBuffer buf, File root,
+			final String[] inActiveModules, final String[] activeModules) {
 		this.buf = buf;
 		this.root = root.getAbsoluteFile();
+		this.inActiveModules = inActiveModules;
+		this.activeModules = activeModules;
 	}
 
 	public void parse() {
@@ -24,8 +30,8 @@ public class HtAccessTreeParser {
 		Callback callback = null;
 		if (htAccessFile.canRead()) {
 			callback = new Callback(cur, nestedLevel);
-			parser = new HtAccessParser(buf, root, htAccessFile, callback,
-					nestedLevel);
+			parser = new HtAccessParser(buf, root, htAccessFile,
+					inActiveModules, activeModules, callback, nestedLevel);
 			System.out.println(htAccessFile.getAbsolutePath());
 			parser.parse();
 		} else {

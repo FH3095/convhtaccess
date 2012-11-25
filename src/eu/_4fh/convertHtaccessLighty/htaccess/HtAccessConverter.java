@@ -17,9 +17,14 @@ public class HtAccessConverter {
 							| Pattern.UNICODE_CASE);
 
 	final private File file;
+	final private String[] inActiveModules;
+	final private String[] activeModules;
 
-	public HtAccessConverter(final File file) {
+	public HtAccessConverter(final File file, final String[] inActiveModules,
+			final String[] activeModules) {
 		this.file = file;
+		this.inActiveModules = inActiveModules;
+		this.activeModules = activeModules;
 	}
 
 	public TreeNode splitFile(final StringBuffer input) {
@@ -114,9 +119,7 @@ public class HtAccessConverter {
 	}
 
 	private boolean checkIfModule(TreeNode node) {
-		final String activeModules[] = {"mod_rewrite.c"};
-		final String inactiveModules[] = {"mod_php5.c"};
-		for (String module : inactiveModules) {
+		for (String module : inActiveModules) {
 			if (node.getCondition().equalsIgnoreCase(module)) {
 				return false;
 			}

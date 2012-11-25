@@ -29,11 +29,15 @@ public class Config {
 	private String defaultFilePrefix;
 	private String defaultFilePostfix;
 	private ArrayList<Domain> domains;
+	private String[] inActiveModules;
+	private String[] activeModules;
 
 	public Config() {
 		defaultRegexType = null;
 		defaultFilePrefix = null;
 		defaultFilePostfix = null;
+		inActiveModules = null;
+		activeModules = null;
 		domains = new ArrayList<Domain>();
 	}
 
@@ -98,6 +102,14 @@ public class Config {
 		return domains.listIterator();
 	}
 
+	public String[] getInActiveModules() {
+		return inActiveModules;
+	}
+
+	public String[] getActiveModules() {
+		return activeModules;
+	}
+
 	protected void insertConfigNode(ConfigNode node) {
 		if (node instanceof Option) {
 			if (defaultRegexType != null) {
@@ -123,6 +135,7 @@ public class Config {
 					.getNodeValue();
 			String postfix = node.getAttributes().getNamedItem("postfix")
 					.getNodeValue();
+			parseOptions(node);
 			return new Option(type, prefix, postfix);
 		} else if (node.getLocalName().equals("Domain")) {
 			RegexType type = getDefaultRegexType();
@@ -151,7 +164,6 @@ public class Config {
 		throw new RuntimeException("Found unsupported Node in Config-File: "
 				+ node.getNodeName() + " ; " + node.toString());
 	}
-
 	protected DomainOption[] parseDomainOptions(Node node) {
 		List<DomainOption> ret = new LinkedList<DomainOption>();
 		for (Node cur = node.getFirstChild(); cur != null; cur = cur
@@ -174,6 +186,37 @@ public class Config {
 		}
 		throw new RuntimeException("Can't parse invalid Domain-Sub-Node "
 				+ node.getNodeName() + " ; " + node.toString());
+	}
+
+	protected void parseOptions(Node node) {
+		for (Node cur = node.getFirstChild(); cur != null; cur = cur
+				.getNextSibling()) {
+			if (cur.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+			if (cur.getLocalName().equals("ApacheModules")) {
+				parseApacheModules(cur);
+			}
+		}
+	}
+
+	protected void parseApacheModules(Node node) {
+		List<String> resultActive = new LinkedList<String>();
+		List<String> resultInActive = new LinkedList<String>();
+		for (Node cur = node.getFirstChild(); cur != null; cur = cur
+				.getNextSibling()) {
+			if (cur.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+			if (cur.getAttributes().getNamedItem("active").getTextContent()
+					.trim().equalsIgnoreCase("true")) {
+				resultActive.add(cur.getTextContent().trim());
+			} else {
+				resultInActive.add(cur.getTextContent().trim());
+			}
+		}
+		inActiveModules = resultInActive.toArray(new String[1]);
+		activeModules = resultActive.toArray(new String[1]);
 	}
 
 	protected RegexType parseRegexTypeAttribute(String attribute) {

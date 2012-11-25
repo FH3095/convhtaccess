@@ -15,22 +15,30 @@ public class HtAccessParser {
 	final private File file;
 	final private int nestedLevel;
 	final private SectionEventListener callback;
+	final private String[] inActiveModules;
+	final private String[] activeModules;
 
 	public HtAccessParser(final StringBuffer buf, final File docRoot,
-			final File htAccessFile, final SectionEventListener callback) {
+			final File htAccessFile, final String[] inActiveModules,
+			final String[] activeModules, final SectionEventListener callback) {
 		this.buf = buf;
 		this.docRoot = docRoot;
 		this.file = htAccessFile;
+		this.activeModules = activeModules;
+		this.inActiveModules = inActiveModules;
 		this.callback = callback;
 		this.nestedLevel = 2;
 	}
 
 	protected HtAccessParser(final StringBuffer buf, final File docRoot,
-			final File htAccessFile, final SectionEventListener callback,
+			final File htAccessFile, final String[] inActiveModules,
+			final String[] activeModules, final SectionEventListener callback,
 			final int nestedLevel) {
 		this.buf = buf;
 		this.docRoot = docRoot;
 		this.file = htAccessFile;
+		this.activeModules = activeModules;
+		this.inActiveModules = inActiveModules;
 		this.callback = callback;
 		this.nestedLevel = nestedLevel;
 	}
@@ -58,7 +66,8 @@ public class HtAccessParser {
 		input.append(Main.nl);
 		input.trimToSize();
 
-		HtAccessConverter converter = new HtAccessConverter(file);
+		HtAccessConverter converter = new HtAccessConverter(file,
+				inActiveModules, activeModules);
 		TreeNode rootNode = converter.splitFile(input);
 		converter.flatenTree(rootNode);
 

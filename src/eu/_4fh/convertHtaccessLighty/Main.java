@@ -69,7 +69,9 @@ public class Main {
 			createDomainOption(buf, option);
 			if (option instanceof DocRoot) {
 				String docRoot = ((DocRoot) option).docRoot;
-				new HtAccessTreeParser(buf, new File(docRoot)).parse();
+				new HtAccessTreeParser(buf, new File(docRoot),
+						config.getInActiveModules(), config.getActiveModules())
+						.parse();
 			}
 		}
 
