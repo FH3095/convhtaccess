@@ -20,7 +20,7 @@ public class OrderAllowDeny extends DataHandler {
 				"^\\s*order\\s+allow\\s*,\\s*deny\\s*$",
 				Pattern.CASE_INSENSITIVE).matcher(line);
 		Matcher matcherDenyAllow = Pattern.compile(
-				"^\\s*order\\s+allow\\s*,\\s*deny\\s*$",
+				"^\\s*order\\s+deny\\s*,\\s*allow\\s*$",
 				Pattern.CASE_INSENSITIVE).matcher(line);
 		if (matcherAllowDeny.matches()) {
 			orderDenyLast = true;
