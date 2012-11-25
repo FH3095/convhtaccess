@@ -16,11 +16,9 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import eu._4fh.convertHtaccessLighty.config.options.ConfigNode;
 import eu._4fh.convertHtaccessLighty.config.options.DocRoot;
 import eu._4fh.convertHtaccessLighty.config.options.Domain;
 import eu._4fh.convertHtaccessLighty.config.options.DomainOption;
-import eu._4fh.convertHtaccessLighty.config.options.Option;
 import eu._4fh.convertHtaccessLighty.config.options.Redirect;
 import eu._4fh.convertHtaccessLighty.config.options.RegexType;
 
@@ -78,7 +76,7 @@ public class Config {
 				if (cur.getNodeType() != Node.ELEMENT_NODE) {
 					continue;
 				}
-				insertConfigNode(xmlNodeToConfigNode(cur));
+				xmlNodeToConfig(cur);
 				cur = cur.getNextSibling();
 			}
 		} catch (Exception e) {
@@ -110,33 +108,15 @@ public class Config {
 		return activeModules;
 	}
 
-	protected void insertConfigNode(ConfigNode node) {
-		if (node instanceof Option) {
-			if (defaultRegexType != null) {
-				throw new RuntimeException(
-						"Found more than one Option-Node in config!");
-			}
-			defaultRegexType = ((Option) node).regexType;
-			defaultFilePrefix = ((Option) node).prefix;
-			defaultFilePostfix = ((Option) node).postfix;
-		} else if (node instanceof Domain) {
-			domains.add((Domain) node);
-		} else {
-			throw new RuntimeException("Can't insert ConfigNode of type "
-					+ node.getClass().getCanonicalName());
-		}
-	}
-
-	protected ConfigNode xmlNodeToConfigNode(Node node) {
+	protected void xmlNodeToConfig(Node node) {
 		if (node.getLocalName().equals("Options")) {
-			RegexType type = parseRegexTypeAttribute(node.getAttributes()
+			defaultRegexType = parseRegexTypeAttribute(node.getAttributes()
 					.getNamedItem("regexType").getNodeValue());
-			String prefix = node.getAttributes().getNamedItem("prefix")
+			defaultFilePrefix = node.getAttributes().getNamedItem("prefix")
 					.getNodeValue();
-			String postfix = node.getAttributes().getNamedItem("postfix")
+			defaultFilePostfix = node.getAttributes().getNamedItem("postfix")
 					.getNodeValue();
 			parseOptions(node);
-			return new Option(type, prefix, postfix);
 		} else if (node.getLocalName().equals("Domain")) {
 			RegexType type = getDefaultRegexType();
 			if (node.getAttributes().getNamedItem("regexType") != null) {
@@ -158,12 +138,15 @@ public class Config {
 			short index = Short.parseShort(node.getAttributes()
 					.getNamedItem("index").getNodeValue());
 			DomainOption[] domainOptions = parseDomainOptions(node);
-			return new Domain(name, index, filePrefix, filePostfix, type,
-					domainOptions);
+			domains.add(new Domain(name, index, filePrefix, filePostfix, type,
+					domainOptions));
+		} else {
+			throw new RuntimeException(
+					"Found unsupported Node in Config-File: "
+							+ node.getNodeName() + " ; " + node.toString());
 		}
-		throw new RuntimeException("Found unsupported Node in Config-File: "
-				+ node.getNodeName() + " ; " + node.toString());
 	}
+
 	protected DomainOption[] parseDomainOptions(Node node) {
 		List<DomainOption> ret = new LinkedList<DomainOption>();
 		for (Node cur = node.getFirstChild(); cur != null; cur = cur

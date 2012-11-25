@@ -3,7 +3,7 @@ package eu._4fh.convertHtaccessLighty.config.options;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Domain extends ConfigNode {
+public class Domain {
 	final public String name;
 	final public short index;
 	final public RegexType regexType;
