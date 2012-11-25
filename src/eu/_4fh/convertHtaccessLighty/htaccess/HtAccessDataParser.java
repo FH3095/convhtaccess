@@ -1,6 +1,8 @@
 package eu._4fh.convertHtaccessLighty.htaccess;
 
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import eu._4fh.convertHtaccessLighty.Main;
 
@@ -59,7 +61,9 @@ class HtAccessDataParser {
 	}
 
 	private void parseDeny(String line) {
-		if (!line.matches("^deny\\s+from\\s+all$")) {
+		Matcher m = Pattern.compile("^deny\\s+from\\s+all$",
+				Pattern.CASE_INSENSITIVE).matcher(line);
+		if (!m.matches()) {
 			System.out.println(formatError(
 					"Currently only \"deny from all\" is implemented.", line));
 			return;
