@@ -31,7 +31,7 @@ public class Main {
 	}
 
 	static public String quoteRegexString(String str) {
-		return str.replace(".", "\\.");
+		return str.replace(".", "\\.").replace("\"", "\\\"");
 	}
 
 	private Main() {
