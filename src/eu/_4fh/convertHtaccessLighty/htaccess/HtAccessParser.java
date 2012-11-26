@@ -48,9 +48,11 @@ public class HtAccessParser {
 		try {
 			FileReader reader = new FileReader(file);
 			char inputBuf[] = new char[512];
-			while (reader.read(inputBuf) > 0) {
-				input.append(inputBuf);
-			}
+			int readBytes = 0;
+			do {
+				input.append(new String(inputBuf, 0, readBytes));
+				readBytes = reader.read(inputBuf);
+			} while (readBytes >= 0);
 			reader.close();
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException("Can't find file "

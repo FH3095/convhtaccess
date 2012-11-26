@@ -66,7 +66,6 @@ public class HtAccessConverter {
 					"Reached end of HtAccessFile, but currently opened tag is "
 							+ cur.toString() + ". Malformed htaccess-File?");
 		}
-
 		return root;
 	}
 
