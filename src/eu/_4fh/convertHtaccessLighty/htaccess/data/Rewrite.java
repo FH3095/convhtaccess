@@ -51,6 +51,12 @@ public class Rewrite extends DataHandler {
 			String parts[] = line.split("\\s+");
 			String rule = removeQuotes(parts[1].trim());
 			String target = removeQuotes(parts[2].trim());
+			if (target.equals("-")) {
+				throw new ParseException(
+						"Ignored \""
+								+ line
+								+ "\" because you can't implement this in lighty-config.");
+			}
 			rules.add(new RulePair(rule, target));
 		} else if (lLine.startsWith("rewritecond")) {
 			ignoreNextRewriteRule = true;
