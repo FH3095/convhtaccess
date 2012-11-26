@@ -19,16 +19,18 @@ public class Auth extends DataHandler {
 	public void parseCommand(String line) throws ParseException {
 		line = line.toLowerCase().trim();
 		if (line.startsWith("authtype")) {
-			authType = extractParameter(line, "authtype");
+			authType = removeQuotes(line.substring("authtype".length()).trim());
 			if (!authType.equals("digest") && !authType.equals("basic")) {
 				throw new ParseException("Unknown AuthType " + authType);
 			}
 		} else if (line.startsWith("authname")) {
-			authName = extractParameter(line, "authname");
+			authName = removeQuotes(line.substring("authname".length()).trim());
 		} else if (line.startsWith("authuserfile")) {
-			authUserFile = extractParameter(line, "authuserfile");
+			authUserFile = removeQuotes(line.substring("authuserfile".length())
+					.trim());
 		} else if (line.startsWith("authgroupfile")) {
-			authGroupFile = extractParameter(line, "authgroupfile");
+			authGroupFile = removeQuotes(line.substring(
+					"authgroupfile".length()).trim());
 		} else if (line.startsWith("require")) {
 			authRequire = extractRequire(line);
 		} else {
@@ -45,7 +47,7 @@ public class Auth extends DataHandler {
 			if (parts[i].isEmpty()) {
 				continue;
 			}
-			parts[i] = extractParameter(parts[i], "");
+			parts[i] = removeQuotes(parts[i].trim()).trim();
 			if (firstPart) {
 				firstPart = false;
 				if (parts[i].equals("group")) {
@@ -64,21 +66,6 @@ public class Auth extends DataHandler {
 			}
 		}
 		return ret.toString();
-	}
-
-	private String extractParameter(String line, String command)
-			throws ParseException {
-		String param = line.substring(command.length()).trim();
-		boolean startQuotes = param.startsWith("\"");
-		boolean endQuotes = param.endsWith("\"");
-		if (startQuotes != endQuotes) {
-			throw new ParseException("Found command " + line
-					+ " that starts xor end with quotes.");
-		}
-		if (startQuotes) {
-			param = param.substring(1, param.length() - 1);
-		}
-		return param;
 	}
 
 	@Override

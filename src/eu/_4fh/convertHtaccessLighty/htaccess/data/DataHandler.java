@@ -24,12 +24,21 @@ abstract public class DataHandler {
 		return false;
 	}
 
+	static protected String removeQuotes(String line) throws ParseException {
+		boolean startQuotes = line.startsWith("\"");
+		boolean endQuotes = line.endsWith("\"");
+		if (startQuotes != endQuotes) {
+			throw new ParseException("Tried to extract parameter from \""
+					+ line + "\" which starts xor ends with quotes.");
+		}
+		if (startQuotes) {
+			line = line.substring(1, line.length() - 1);
+		}
+		return line;
+	}
+
 	public abstract void parseCommand(final String line) throws ParseException;
 	public abstract void write(final StringBuffer buf, final int nestedLevel);
-
-	static protected enum TriBool {
-		NONE, TRUE, FALSE;
-	}
 
 	static public class ParseException extends Exception {
 		private static final long serialVersionUID = -7276965014282474777L;
