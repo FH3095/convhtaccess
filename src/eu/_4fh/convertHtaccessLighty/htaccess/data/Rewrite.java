@@ -36,7 +36,8 @@ public class Rewrite extends DataHandler {
 						"Unknown Parameter for RewriteEngine: " + onOff);
 			}
 		} else if (lLine.startsWith("rewritebase")) {
-			this.base = Main.quoteRegexString(removeQuotes(line));
+			this.base = Main.quoteRegexString(removeQuotes(line.substring(
+					"rewritebase".length()).trim()));
 		} else if (lLine.startsWith("rewriterule")) {
 			if (base == null) {
 				throw new ParseException(
@@ -71,7 +72,7 @@ public class Rewrite extends DataHandler {
 				String rule = pair.rule;
 				String dest = pair.dest;
 				if (rule.startsWith("^")) {
-					rule = "^" + base + rule;
+					rule = "^" + base + rule.substring(1);
 				}
 				Main.writeIndentLine(buf, nestedLevel, "url.redirect = ( \"",
 						rule, "\" => \"", dest, "\" )");

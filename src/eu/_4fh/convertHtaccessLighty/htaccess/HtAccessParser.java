@@ -155,7 +155,7 @@ public class HtAccessParser {
 		}
 
 		Main.writeIndentLine(buf, nestedLevel - 1, "$HTTP[\"url\"] =~ \"^",
-				webPath, treePath, "\" {");
+				Main.quoteRegexString(webPath + treePath), "\" {");
 	}
 
 	static public interface SectionEventListener {
