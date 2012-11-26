@@ -32,7 +32,7 @@ public class HtAccessTreeParser {
 			callback = new Callback(cur, nestedLevel);
 			parser = new HtAccessParser(buf, root, htAccessFile,
 					inActiveModules, activeModules, callback, nestedLevel);
-			System.out.println(htAccessFile.getAbsolutePath());
+			System.out.println("----- " + htAccessFile.getAbsolutePath());
 			parser.parse();
 		} else {
 			doParseSubdirs(cur, nestedLevel);
