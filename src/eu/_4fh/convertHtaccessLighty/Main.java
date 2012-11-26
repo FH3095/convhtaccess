@@ -30,6 +30,10 @@ public class Main {
 		buf.append(nl);
 	}
 
+	static public String quoteRegexString(String str) {
+		return str.replace(".", "\\.");
+	}
+
 	private Main() {
 		config = new Config();
 	}
@@ -87,7 +91,7 @@ public class Main {
 				regex = "= \"" + domain.name + "\"";
 				break;
 			case WITH_PORT :
-				regex = "~ \"^" + domain.name.replace(".", "\\.")
+				regex = "~ \"^" + quoteRegexString(domain.name)
 						+ "(\\:[0-9]+)?$\"";
 				break;
 			default :

@@ -138,7 +138,7 @@ public class HtAccessParser {
 		String treePath = "";
 		switch (node.getType()) {
 			case FILES : {
-				String condition = node.getCondition().replace(".", "\\.");
+				String condition = Main.quoteRegexString(node.getCondition());
 				treePath = condition + treePath;
 			}
 				break;
