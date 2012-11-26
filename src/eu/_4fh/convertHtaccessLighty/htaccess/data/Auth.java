@@ -2,7 +2,8 @@ package eu._4fh.convertHtaccessLighty.htaccess.data;
 
 public class Auth extends DataHandler {
 	public Auth() {
-		super("AuthType", "AuthName", "AuthUserfile", "require");
+		super("AuthType", "AuthName", "AuthUserfile", "AuthGroupFile",
+				"require");
 	}
 
 	@Override
