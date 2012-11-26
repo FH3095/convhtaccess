@@ -1,19 +1,120 @@
 package eu._4fh.convertHtaccessLighty.htaccess.data;
 
+import eu._4fh.convertHtaccessLighty.Main;
+
 public class Auth extends DataHandler {
+	private String authType;
+	private String authName;
+	private String authUserFile;
+	private String authGroupFile;
+	private String authRequire;
+
 	public Auth() {
 		super("AuthType", "AuthName", "AuthUserfile", "AuthGroupFile",
 				"require");
+		authType = authName = authUserFile = authGroupFile = authRequire = null;
 	}
 
 	@Override
 	public void parseCommand(String line) throws ParseException {
-		// TODO Auto-generated method stub
-		throw new ParseException("Not yet implemented: " + line);
+		line = line.toLowerCase().trim();
+		if (line.startsWith("authtype")) {
+			authType = extractParameter(line, "authtype");
+			if (!authType.equals("digest") && !authType.equals("basic")) {
+				throw new ParseException("Unknown AuthType " + authType);
+			}
+		} else if (line.startsWith("authname")) {
+			authName = extractParameter(line, "authname");
+		} else if (line.startsWith("authuserfile")) {
+			authUserFile = extractParameter(line, "authuserfile");
+		} else if (line.startsWith("authgroupfile")) {
+			authGroupFile = extractParameter(line, "authgroupfile");
+		} else if (line.startsWith("require")) {
+			authRequire = extractRequire(line);
+		} else {
+			throw new ParseException("Not yet implemented: " + line);
+		}
+	}
+
+	private String extractRequire(String line) throws ParseException {
+		String parts[] = line.split("\\s+");
+		boolean firstPart = true;
+		StringBuffer ret = new StringBuffer();
+
+		for (int i = 1; i < parts.length; ++i) {
+			if (parts[i].isEmpty()) {
+				continue;
+			}
+			parts[i] = extractParameter(parts[i], "");
+			if (firstPart) {
+				firstPart = false;
+				if (parts[i].equals("group")) {
+					throw new ParseException(
+							"Lighty doesn't implement \"require group\".");
+				} else if (parts[i].equals("valid-user")) {
+					return "valid-user";
+				} else if (!parts[i].equals("user")) {
+					throw new ParseException("Unknown require-type " + parts[i]);
+				}
+			} else {
+				if (ret.length() > 0) {
+					ret.append("|");
+				}
+				ret.append("user=").append(parts[i]);
+			}
+		}
+		return ret.toString();
+	}
+
+	private String extractParameter(String line, String command)
+			throws ParseException {
+		String param = line.substring(command.length()).trim();
+		boolean startQuotes = param.startsWith("\"");
+		boolean endQuotes = param.endsWith("\"");
+		if (startQuotes != endQuotes) {
+			throw new ParseException("Found command " + line
+					+ " that starts xor end with quotes.");
+		}
+		if (startQuotes) {
+			param = param.substring(1, param.length() - 1);
+		}
+		return param;
 	}
 
 	@Override
 	public void write(StringBuffer buf, int nestedLevel) {
-		// TODO Auto-generated method stub
+		if (authType != null) {
+			if (authType.equals("basic")) {
+				Main.writeIndentLine(buf, nestedLevel,
+						"auth.backend = \"htpasswd\"");
+				Main.writeIndentLine(buf, nestedLevel,
+						"auth.backend.htpasswd.userfile = \"", authUserFile,
+						"\"");
+
+			} else {
+				Main.writeIndentLine(buf, nestedLevel,
+						"auth.backend = \"htdigest\"");
+				Main.writeIndentLine(buf, nestedLevel,
+						"auth.backend.htdigest.userfile = \"", authUserFile,
+						"\"");
+			}
+			if (authGroupFile != null) {
+				Main.writeIndentLine(buf, nestedLevel,
+						"# groupfile is not yet implemented.");
+				Main.writeIndentLine(buf, nestedLevel, "#",
+						"auth.backend.plain.groupfile => \"", authGroupFile,
+						"\"");
+			}
+			Main.writeIndentLine(buf, nestedLevel, "auth.require = ( \"\" =>");
+			Main.writeIndentLine(buf, nestedLevel + 1, "(");
+			Main.writeIndentLine(buf, nestedLevel + 2, "\"method\" => \"",
+					authType, "\",");
+			Main.writeIndentLine(buf, nestedLevel + 2, "\"realm\" => \"",
+					authName, "\",");
+			Main.writeIndentLine(buf, nestedLevel + 2, "\"require\" => \"",
+					authRequire, "\",");
+			Main.writeIndentLine(buf, nestedLevel + 1, ")");
+			Main.writeIndentLine(buf, nestedLevel, ")");
+		}
 	}
 }
