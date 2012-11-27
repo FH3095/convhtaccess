@@ -17,21 +17,22 @@ public class Auth extends DataHandler {
 
 	@Override
 	public void parseCommand(String line) throws ParseException {
-		line = line.toLowerCase().trim();
-		if (line.startsWith("authtype")) {
+		String lLine = line.toLowerCase().trim();
+		if (lLine.startsWith("authtype")) {
 			authType = removeQuotes(line.substring("authtype".length()).trim());
-			if (!authType.equals("digest") && !authType.equals("basic")) {
+			if (!authType.equalsIgnoreCase("digest")
+					&& !authType.equalsIgnoreCase("basic")) {
 				throw new ParseException("Unknown AuthType " + authType);
 			}
-		} else if (line.startsWith("authname")) {
+		} else if (lLine.startsWith("authname")) {
 			authName = removeQuotes(line.substring("authname".length()).trim());
-		} else if (line.startsWith("authuserfile")) {
+		} else if (lLine.startsWith("authuserfile")) {
 			authUserFile = removeQuotes(line.substring("authuserfile".length())
 					.trim());
-		} else if (line.startsWith("authgroupfile")) {
+		} else if (lLine.startsWith("authgroupfile")) {
 			authGroupFile = removeQuotes(line.substring(
 					"authgroupfile".length()).trim());
-		} else if (line.startsWith("require")) {
+		} else if (lLine.startsWith("require")) {
 			authRequire = extractRequire(line);
 		} else {
 			throw new ParseException("Not yet implemented: " + line);
@@ -50,12 +51,12 @@ public class Auth extends DataHandler {
 			parts[i] = removeQuotes(parts[i].trim()).trim();
 			if (firstPart) {
 				firstPart = false;
-				if (parts[i].equals("group")) {
+				if (parts[i].equalsIgnoreCase("group")) {
 					throw new ParseException(
 							"Lighty doesn't implement \"require group\".");
-				} else if (parts[i].equals("valid-user")) {
+				} else if (parts[i].equalsIgnoreCase("valid-user")) {
 					return "valid-user";
-				} else if (!parts[i].equals("user")) {
+				} else if (!parts[i].equalsIgnoreCase("user")) {
 					throw new ParseException("Unknown require-type " + parts[i]);
 				}
 			} else {
