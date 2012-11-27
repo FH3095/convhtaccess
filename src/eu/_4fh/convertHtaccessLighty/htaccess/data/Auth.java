@@ -19,9 +19,11 @@ public class Auth extends DataHandler {
 	public void parseCommand(String line) throws ParseException {
 		String lLine = line.toLowerCase().trim();
 		if (lLine.startsWith("authtype")) {
-			authType = removeQuotes(line.substring("authtype".length()).trim());
-			if (!authType.equalsIgnoreCase("digest")
-					&& !authType.equalsIgnoreCase("basic")) {
+			// Lighty is case-sensitive and REQUIRES digest and basic in lowercase
+			authType = removeQuotes(line.substring("authtype".length()).trim())
+					.toLowerCase();
+			if (!authType.equals("digest")
+					&& !authType.equals("basic")) {
 				throw new ParseException("Unknown AuthType " + authType);
 			}
 		} else if (lLine.startsWith("authname")) {
