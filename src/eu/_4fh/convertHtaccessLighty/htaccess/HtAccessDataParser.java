@@ -8,6 +8,7 @@ import eu._4fh.convertHtaccessLighty.Main;
 import eu._4fh.convertHtaccessLighty.htaccess.data.Auth;
 import eu._4fh.convertHtaccessLighty.htaccess.data.DataHandler;
 import eu._4fh.convertHtaccessLighty.htaccess.data.Expire;
+import eu._4fh.convertHtaccessLighty.htaccess.data.LighttpdOption;
 import eu._4fh.convertHtaccessLighty.htaccess.data.Options;
 import eu._4fh.convertHtaccessLighty.htaccess.data.OrderAllowDeny;
 import eu._4fh.convertHtaccessLighty.htaccess.data.Rewrite;
@@ -31,6 +32,7 @@ public class HtAccessDataParser {
 		handlerList.add(new Options());
 		handlerList.add(new Auth());
 		handlerList.add(new Expire());
+		handlerList.add(new LighttpdOption());
 		handler = handlerList.toArray(new DataHandler[1]);
 	}
 
