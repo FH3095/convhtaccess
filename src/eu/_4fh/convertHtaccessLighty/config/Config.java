@@ -2,6 +2,7 @@ package eu._4fh.convertHtaccessLighty.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -19,6 +20,8 @@ import org.xml.sax.SAXParseException;
 import eu._4fh.convertHtaccessLighty.config.options.DocRoot;
 import eu._4fh.convertHtaccessLighty.config.options.Domain;
 import eu._4fh.convertHtaccessLighty.config.options.DomainOption;
+import eu._4fh.convertHtaccessLighty.config.options.OptionsPostfix;
+import eu._4fh.convertHtaccessLighty.config.options.OptionsPrefix;
 import eu._4fh.convertHtaccessLighty.config.options.Redirect;
 import eu._4fh.convertHtaccessLighty.config.options.RegexType;
 
@@ -135,23 +138,34 @@ public class Config {
 				filePostfix = node.getAttributes().getNamedItem("postfix")
 						.getNodeValue();
 			}
-			String textPrefix = "";
-			if (getChildNode(node.getFirstChild(), "OptionsPrefix") != null) {
-				textPrefix = getChildNode(node.getFirstChild(), "OptionsPrefix")
-						.getTextContent().trim();
-			}
-			String textPostfix = "";
-			if (getChildNode(node.getFirstChild(), "OptionsPostfix") != null) {
-				textPostfix = getChildNode(node.getFirstChild(),
-						"OptionsPostfix").getTextContent().trim();
-			}
 			String name = node.getAttributes().getNamedItem("name")
 					.getNodeValue();
 			short index = Short.parseShort(node.getAttributes()
 					.getNamedItem("index").getNodeValue());
-			DomainOption[] domainOptions = parseDomainOptions(node);
+			List<DomainOption> domainOptions = parseDomainOptions(node);
+
+			String optionsPrefix = "";
+			String optionsPostfix = "";
+			Iterator<DomainOption> domainOptionsIt = domainOptions.iterator();
+			while (domainOptionsIt.hasNext()) {
+				DomainOption option = domainOptionsIt.next();
+				boolean found = false;
+				if (option instanceof OptionsPrefix) {
+					optionsPrefix = ((OptionsPrefix) option).options;
+					found = true;
+
+				} else if (option instanceof OptionsPostfix) {
+					optionsPostfix = ((OptionsPostfix) option).options;
+					found = true;
+				}
+				if (found) {
+					domainOptionsIt.remove();
+					domainOptionsIt = domainOptions.iterator();
+				}
+			}
 			domains.add(new Domain(name, index, filePrefix, filePostfix,
-					textPrefix, textPostfix, type, domainOptions));
+					optionsPrefix, optionsPostfix, type, domainOptions
+							.toArray(new DomainOption[] {})));
 		} else {
 			throw new RuntimeException(
 					"Found unsupported Node in Config-File: "
@@ -159,7 +173,7 @@ public class Config {
 		}
 	}
 
-	protected DomainOption[] parseDomainOptions(Node node) {
+	protected List<DomainOption> parseDomainOptions(Node node) {
 		List<DomainOption> ret = new LinkedList<DomainOption>();
 		for (Node cur = node.getFirstChild(); cur != null; cur = cur
 				.getNextSibling()) {
@@ -168,7 +182,7 @@ public class Config {
 			}
 			ret.add(parseDomainOption(cur));
 		}
-		return ret.toArray(new DomainOption[] {});
+		return ret;
 	}
 
 	protected DomainOption parseDomainOption(Node node) {
@@ -178,6 +192,10 @@ public class Config {
 			return new Redirect(node.getTextContent().trim(), code);
 		} else if (node.getLocalName().equals("DocRoot")) {
 			return new DocRoot(node.getTextContent().trim());
+		} else if (node.getLocalName().equals("OptionsPrefix")) {
+			return new OptionsPrefix(node.getTextContent().trim());
+		} else if (node.getLocalName().equals("OptionsPostfix")) {
+			return new OptionsPostfix(node.getTextContent().trim());
 		}
 		throw new RuntimeException("Can't parse invalid Domain-Sub-Node "
 				+ node.getNodeName() + " ; " + node.toString());
@@ -222,16 +240,5 @@ public class Config {
 		}
 		throw new RuntimeException(
 				"Found ConfigAttribute RegexType with invalid string.");
-	}
-
-	protected Node getChildNode(Node node, String nodeName) {
-		for (Node cur = node; cur != null; cur = cur.getNextSibling()) {
-			if (cur.getNodeType() != Node.ELEMENT_NODE
-					|| !cur.getNodeName().equals(nodeName)) {
-				continue;
-			}
-			return cur;
-		}
-		return null;
 	}
 }
