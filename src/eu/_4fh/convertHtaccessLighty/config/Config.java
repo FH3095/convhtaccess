@@ -136,14 +136,14 @@ public class Config {
 						.getNodeValue();
 			}
 			String textPrefix = "";
-			if (node.getAttributes().getNamedItem("optionsPrefix") != null) {
-				textPrefix = node.getAttributes().getNamedItem("optionsPrefix")
-						.getNodeValue();
+			if (getChildNode(node.getFirstChild(), "OptionsPrefix") != null) {
+				textPrefix = getChildNode(node.getFirstChild(), "OptionsPrefix")
+						.getTextContent().trim();
 			}
 			String textPostfix = "";
-			if (node.getAttributes().getNamedItem("optionsPostfix") != null) {
-				textPostfix = node.getAttributes()
-						.getNamedItem("optionsPostfix").getNodeValue();
+			if (getChildNode(node.getFirstChild(), "OptionsPostfix") != null) {
+				textPostfix = getChildNode(node.getFirstChild(),
+						"OptionsPostfix").getTextContent().trim();
 			}
 			String name = node.getAttributes().getNamedItem("name")
 					.getNodeValue();
@@ -222,5 +222,16 @@ public class Config {
 		}
 		throw new RuntimeException(
 				"Found ConfigAttribute RegexType with invalid string.");
+	}
+
+	protected Node getChildNode(Node node, String nodeName) {
+		for (Node cur = node; cur != null; cur = cur.getNextSibling()) {
+			if (cur.getNodeType() != Node.ELEMENT_NODE
+					|| !cur.getNodeName().equals(nodeName)) {
+				continue;
+			}
+			return cur;
+		}
+		return null;
 	}
 }

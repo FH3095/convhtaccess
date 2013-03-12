@@ -36,10 +36,16 @@
 
 				<xs:element name="Domain" minOccurs="1" maxOccurs="unbounded">
 					<xs:complexType>
-						<xs:choice>
-							<xs:element name="DocRoot" type="xs:string"/>
-							<xs:element name="Redirect" type="type_redirect"/>
-						</xs:choice>
+						<xs:sequence>
+							<xs:choice minOccurs="1" maxOccurs="1">
+								<xs:element name="DocRoot" type="xs:string"/>
+								<xs:element name="Redirect" type="type_redirect"/>
+							</xs:choice>
+							<xs:element name="OptionsPrefix" type="xs:string"
+								minOccurs="0" maxOccurs="1"/>
+							<xs:element name="OptionsPostfix" type="xs:string"
+								minOccurs="0" maxOccurs="1"/>
+						</xs:sequence>
 						<xs:attribute name="regexType" type="type_regexType"
 							use="optional"/>
 						<xs:attribute name="name" type="xs:string" use="required"/>
