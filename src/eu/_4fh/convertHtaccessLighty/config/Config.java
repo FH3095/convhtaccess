@@ -56,12 +56,14 @@ public class Config {
 					System.out.println("WARNING while parsing config:");
 					arg0.printStackTrace(System.err);
 				}
+
 				@Override
 				public void fatalError(SAXParseException arg0)
 						throws SAXException {
 					throw new RuntimeException(
 							"Fatal Error while parsing config", arg0);
 				}
+
 				@Override
 				public void error(SAXParseException arg0) throws SAXException {
 					throw new RuntimeException("Error while parsing config",
@@ -133,13 +135,23 @@ public class Config {
 				filePostfix = node.getAttributes().getNamedItem("postfix")
 						.getNodeValue();
 			}
+			String textPrefix = "";
+			if (node.getAttributes().getNamedItem("optionsPrefix") != null) {
+				textPrefix = node.getAttributes().getNamedItem("optionsPrefix")
+						.getNodeValue();
+			}
+			String textPostfix = "";
+			if (node.getAttributes().getNamedItem("optionsPostfix") != null) {
+				textPostfix = node.getAttributes()
+						.getNamedItem("optionsPostfix").getNodeValue();
+			}
 			String name = node.getAttributes().getNamedItem("name")
 					.getNodeValue();
 			short index = Short.parseShort(node.getAttributes()
 					.getNamedItem("index").getNodeValue());
 			DomainOption[] domainOptions = parseDomainOptions(node);
-			domains.add(new Domain(name, index, filePrefix, filePostfix, type,
-					domainOptions));
+			domains.add(new Domain(name, index, filePrefix, filePostfix,
+					textPrefix, textPostfix, type, domainOptions));
 		} else {
 			throw new RuntimeException(
 					"Found unsupported Node in Config-File: "
@@ -156,7 +168,7 @@ public class Config {
 			}
 			ret.add(parseDomainOption(cur));
 		}
-		return ret.toArray(new DomainOption[]{});
+		return ret.toArray(new DomainOption[] {});
 	}
 
 	protected DomainOption parseDomainOption(Node node) {

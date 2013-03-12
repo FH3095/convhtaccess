@@ -139,19 +139,19 @@ public class HtAccessParser {
 
 		String treePath = "";
 		switch (node.getType()) {
-			case FILES :
-				treePath = node.getCondition() + treePath;
-				break;
+		case FILES:
+			treePath = node.getCondition() + treePath;
+			break;
 
-			case FILES_MATCH :
-				treePath = node.getCondition() + treePath;
-				break;
+		case FILES_MATCH:
+			treePath = node.getCondition() + treePath;
+			break;
 
-			case ROOT :
-				break;
-			default :
-				throw new RuntimeException("Got unhandled Tag-Type "
-						+ node.getType() + " from tag " + node.toString());
+		case ROOT:
+			break;
+		default:
+			throw new RuntimeException("Got unhandled Tag-Type "
+					+ node.getType() + " from tag " + node.toString());
 		}
 
 		Main.writeIndentLine(buf, nestedLevel - 1, "$HTTP[\"url\"] =~ \"^",
@@ -160,8 +160,11 @@ public class HtAccessParser {
 
 	static public interface SectionEventListener {
 		public void preStartBlock(StringBuffer buf, TreeNode node);
+
 		public void postStartBlock(StringBuffer buf, TreeNode node);
+
 		public void preEndBlock(StringBuffer buf, TreeNode node);
+
 		public void postEndBlock(StringBuffer buf, TreeNode node);
 	}
 }

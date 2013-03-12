@@ -55,7 +55,9 @@ public class HtAccessDataParser {
 			} catch (DataHandler.ParseException e) {
 				System.out.println(e.getLocalizedMessage());
 			}
-		} else if (lineBuf.startsWith("#")) {
+		} else if (lineBuf.startsWith("#")) { // Needs to be after
+												// findDataHandler (because of
+												// ##Lighty / LighttpdOption)
 			parseComment(line);
 		} else if (lineBuf.isEmpty()) {
 			// Ignore

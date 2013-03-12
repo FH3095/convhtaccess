@@ -74,45 +74,45 @@ public class HtAccessConverter {
 		while (it.hasNext()) {
 			TreeNode cur = it.next();
 			switch (cur.getType()) {
-				case IF_MODULE :
-					if (checkIfModule(cur)) {
-						ListIterator<TreeNode> copyIt = cur.iterator();
-						while (copyIt.hasNext()) {
-							TreeNode child = copyIt.next();
-							child.setParent(cur.getParent());
-							cur.getParent().addChild(child);
-						}
-						cur.getParent().appendLine(cur.getText());
+			case IF_MODULE:
+				if (checkIfModule(cur)) {
+					ListIterator<TreeNode> copyIt = cur.iterator();
+					while (copyIt.hasNext()) {
+						TreeNode child = copyIt.next();
+						child.setParent(cur.getParent());
+						cur.getParent().addChild(child);
 					}
-					if (!cur.getParent().delChild(cur)) {
-						throw new RuntimeException("Tried to remove "
-								+ cur.toString() + " from parent "
-								+ cur.getParent()
-								+ ", but parent didn't contained these node.");
-					}
-					it = root.iterator();
-					break;
+					cur.getParent().appendLine(cur.getText());
+				}
+				if (!cur.getParent().delChild(cur)) {
+					throw new RuntimeException("Tried to remove "
+							+ cur.toString() + " from parent "
+							+ cur.getParent()
+							+ ", but parent didn't contained these node.");
+				}
+				it = root.iterator();
+				break;
 
-				case FILES :
-				case FILES_MATCH :
-					flatenTree(cur);
-					if (!cur.getParent().getType().equals(TreeNode.TYPE.ROOT)) {
-						throw new RuntimeException(
-								"Found "
-										+ cur.toString()
-										+ " with parent "
-										+ cur.getParent().toString()
-										+ ", but for "
-										+ cur.getType().toString()
-										+ " the only allowed parent is "
-										+ TreeNode.TYPE.ROOT.toString()
-										+ ". Malformed .htaccess-File? (It isn't allowed to wrap any tag into any other tag, EXCEPT IfModule-Tags.)");
-					}
-					break;
+			case FILES:
+			case FILES_MATCH:
+				flatenTree(cur);
+				if (!cur.getParent().getType().equals(TreeNode.TYPE.ROOT)) {
+					throw new RuntimeException(
+							"Found "
+									+ cur.toString()
+									+ " with parent "
+									+ cur.getParent().toString()
+									+ ", but for "
+									+ cur.getType().toString()
+									+ " the only allowed parent is "
+									+ TreeNode.TYPE.ROOT.toString()
+									+ ". Malformed .htaccess-File? (It isn't allowed to wrap any tag into any other tag, EXCEPT IfModule-Tags.)");
+				}
+				break;
 
-				default :
-					throw new RuntimeException("Found invalid node "
-							+ cur.toString() + " while faltening tree");
+			default:
+				throw new RuntimeException("Found invalid node "
+						+ cur.toString() + " while faltening tree");
 			}
 		}
 	}
@@ -160,15 +160,18 @@ public class HtAccessConverter {
 					FILES_MATCH);
 			final public TYPE ends;
 			final public String text;
+
 			private TYPE(final TYPE ends) {
 				this.text = ends.text;
 				this.ends = ends;
 			}
+
 			private TYPE(final String text) {
 				this.text = text.toLowerCase();
 				this.ends = null;
 			}
 		}
+
 		static final private Pattern PATTERN_SPLIT_LINE = Pattern
 				.compile("[\\r\\n]+");
 		final private TYPE type;

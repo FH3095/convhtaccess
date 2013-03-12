@@ -65,6 +65,7 @@ public class Main {
 		StringBuffer buf = new StringBuffer();
 
 		createDomainCondition(buf, domain);
+		writeIndentLine(buf, 1, domain.textPrefix);
 
 		ListIterator<DomainOption> options = domain.domainOptions
 				.listIterator();
@@ -79,6 +80,7 @@ public class Main {
 			}
 		}
 
+		writeIndentLine(buf, 1, domain.textPostfix);
 		writeIndentLine(buf, 0, "}");
 
 		return buf.toString();
@@ -87,16 +89,15 @@ public class Main {
 	protected void createDomainCondition(StringBuffer buf, Domain domain) {
 		String regex = "";
 		switch (domain.regexType) {
-			case NONE :
-				regex = "= \"" + domain.name + "\"";
-				break;
-			case WITH_PORT :
-				regex = "~ \"^" + quoteRegexString(domain.name)
-						+ "(\\:[0-9]+)?$\"";
-				break;
-			default :
-				throw new RuntimeException("Got invalid regexType: "
-						+ domain.regexType);
+		case NONE:
+			regex = "= \"" + domain.name + "\"";
+			break;
+		case WITH_PORT:
+			regex = "~ \"^" + quoteRegexString(domain.name) + "(\\:[0-9]+)?$\"";
+			break;
+		default:
+			throw new RuntimeException("Got invalid regexType: "
+					+ domain.regexType);
 		}
 		writeIndentLine(buf, 0, "$HTTP[\"host\"] =", regex, " {");
 	}
