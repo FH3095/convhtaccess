@@ -140,11 +140,20 @@ public class HtAccessParser {
 		String treePath = "";
 		switch (node.getType()) {
 		case FILES:
-			treePath = node.getCondition() + treePath;
+			treePath = Main.quoteRegexString(node.getCondition() + treePath);
 			break;
 
-		case FILES_MATCH:
+		case FILES_MATCH: {
 			treePath = node.getCondition() + treePath;
+			if (treePath.startsWith("^")) {
+				treePath = "(.+/)*" + treePath.substring(1);
+			} else {
+				treePath = ".*" + treePath;
+			}
+			if (!treePath.endsWith("$")) {
+				treePath += "[^/]*$";
+			}
+		}
 			break;
 
 		case ROOT:
@@ -155,7 +164,7 @@ public class HtAccessParser {
 		}
 
 		Main.writeIndentLine(buf, nestedLevel - 1, "$HTTP[\"url\"] =~ \"^",
-				Main.quoteRegexString(webPath + treePath), "\" {");
+				Main.quoteRegexString(webPath), treePath, "\" {");
 	}
 
 	static public interface SectionEventListener {
