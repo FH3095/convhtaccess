@@ -140,7 +140,8 @@ public class HtAccessParser {
 		String treePath = "";
 		switch (node.getType()) {
 		case FILES:
-			treePath = Main.quoteRegexString(node.getCondition() + treePath);
+			treePath = Main.quoteRegexString(node.getCondition() + treePath)
+					+ "(/.*)?$";// Also any "virtual directories" after treepath
 			break;
 
 		case FILES_MATCH: {
@@ -150,8 +151,13 @@ public class HtAccessParser {
 			} else {
 				treePath = ".*" + treePath;
 			}
-			if (!treePath.endsWith("$")) {
-				treePath += "[^/]*$";
+			if (treePath.endsWith("$")) {
+				treePath = treePath.substring(0, treePath.length() - 1)
+						+ "(/.*)?$"; // Also any "virtual directories" after
+										// treepath
+			} else {
+				treePath += ".*$"; // Anything after treePath is allowed (so
+									// also virtual direcotries)
 			}
 		}
 			break;
