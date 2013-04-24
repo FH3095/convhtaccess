@@ -9,10 +9,21 @@
 			<Module active="true">mod_rewrite.c</Module>
 		</ApacheModules>
 	</Options>
-	<Domain name="www.4fh.eu" index="50">
-		<DocRoot>/home/fh/domains/4fh.eu/www</DocRoot>
+	<Domain name="www.example.org" index="50">
+		<DocRoot>/home/me/domains/example.org/www</DocRoot>
+		<OptionsPrefix>url.rewrite-once = (
+			"^/view/web/.+" => "$0",
+			"^/view/favicon\.ico$" => "$0",
+			"^/view(/[^\?]*)(\?.*)?" =>
+			"/view/index.php$1$2",
+			)
+		</OptionsPrefix>
 	</Domain>
-	<Domain name="4fh.eu" index="99">
-		<Redirect code="301">http://www.4fh.eu/</Redirect>
+	<Domain name="example.org" index="99">
+		<Redirect code="301" redirectWithPath="true">http://www.example.org/
+		</Redirect>
+	</Domain>
+	<Domain name="example.net" index="149">
+		<Redirect code="301">http://www.example.net/</Redirect>
 	</Domain>
 </Domains>

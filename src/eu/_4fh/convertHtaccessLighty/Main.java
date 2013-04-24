@@ -107,10 +107,12 @@ public class Main {
 			writeIndentLine(buf, 1, "server.document-root = \"",
 					((DocRoot) option).docRoot, "\"");
 		} else if (option instanceof Redirect) {
-			writeIndentLine(buf, 1, "url.redirect = ( \".*\" => \"",
-					((Redirect) option).redirectTo, "\" )");
+			Redirect redirect = (Redirect) option;
+			writeIndentLine(buf, 1, "url.redirect = ( \"/(.*)\" => \"",
+					redirect.redirectTo,
+					(redirect.redirectWithPath ? "$1" : ""), "\" )");
 			writeIndentLine(buf, 1, "url.redirect-code = ",
-					Short.toString(((Redirect) option).redirectCode));
+					Short.toString(redirect.redirectCode));
 		} else {
 			throw new RuntimeException("Can't handle DomainOption of type "
 					+ option.getClass().getCanonicalName());

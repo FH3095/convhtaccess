@@ -94,6 +94,8 @@
 			<xs:extension base="xs:string">
 				<xs:attribute name="code" type="type_redirectCode" use="optional"
 					default="301"/>
+				<xs:attribute name="redirectWithPath" type="type_boolean"
+					use="optional" default="false"/>
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>

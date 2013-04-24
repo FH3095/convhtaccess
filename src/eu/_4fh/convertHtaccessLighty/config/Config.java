@@ -189,7 +189,9 @@ public class Config {
 		if (node.getLocalName().equals("Redirect")) {
 			short code = Short.parseShort(node.getAttributes()
 					.getNamedItem("code").getNodeValue());
-			return new Redirect(node.getTextContent().trim(), code);
+			boolean withPath = Boolean.parseBoolean(node.getAttributes()
+					.getNamedItem("redirectWithPath").getNodeValue());
+			return new Redirect(node.getTextContent().trim(), code, withPath);
 		} else if (node.getLocalName().equals("DocRoot")) {
 			return new DocRoot(node.getTextContent().trim());
 		} else if (node.getLocalName().equals("OptionsPrefix")) {
