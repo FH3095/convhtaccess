@@ -22,7 +22,7 @@ fastcgi.server += (
 		)
 	)
 )
-	</Template>
+		</Template>
 	</Templates>
 	<Domain name="www.example.org" index="50">
 		<DocRoot>/home/me/domains/example.org/www</DocRoot>
