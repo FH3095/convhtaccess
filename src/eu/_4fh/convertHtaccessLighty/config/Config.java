@@ -2,10 +2,12 @@ package eu._4fh.convertHtaccessLighty.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -32,6 +34,7 @@ public class Config {
 	private ArrayList<Domain> domains;
 	private String[] inActiveModules;
 	private String[] activeModules;
+	private Map<String, String> templates;
 
 	public Config() {
 		defaultRegexType = null;
@@ -40,6 +43,7 @@ public class Config {
 		inActiveModules = null;
 		activeModules = null;
 		domains = new ArrayList<Domain>();
+		templates = new HashMap<String, String>();
 	}
 
 	public void readConfig(File configFile) {
@@ -122,6 +126,8 @@ public class Config {
 			defaultFilePostfix = node.getAttributes().getNamedItem("postfix")
 					.getNodeValue();
 			parseOptions(node);
+		} else if (node.getLocalName().equals("Templates")) {
+			parseTemplates(node);
 		} else if (node.getLocalName().equals("Domain")) {
 			RegexType type = getDefaultRegexType();
 			if (node.getAttributes().getNamedItem("regexType") != null) {
@@ -198,9 +204,45 @@ public class Config {
 			return new OptionsPrefix(node.getTextContent().trim());
 		} else if (node.getLocalName().equals("OptionsPostfix")) {
 			return new OptionsPostfix(node.getTextContent().trim());
+		} else if (node.getLocalName().equals("OptionsTemplatePrefix")
+				|| node.getLocalName().equals("OptionsTemplatePostfix")) {
+			return parseOptionsTemplate(node);
 		}
 		throw new RuntimeException("Can't parse invalid Domain-Sub-Node "
 				+ node.getNodeName() + " ; " + node.toString());
+	}
+
+	private DomainOption parseOptionsTemplate(Node node) {
+		if (!templates.containsKey(node.getAttributes().getNamedItem("name")
+				.getTextContent())) {
+			throw new RuntimeException("Can't find Template"
+					+ node.getAttributes().getNamedItem("name")
+							.getTextContent() + " ; " + node.toString());
+		}
+
+		List<String> parameter = new ArrayList<String>();
+		for (Node cur = node.getFirstChild(); cur != null; cur = cur
+				.getNextSibling()) {
+			if (cur.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+			parameter.add(cur.getTextContent());
+		}
+
+		String result = templates.get(node.getAttributes().getNamedItem("name")
+				.getTextContent());
+		for (int i = 0; i < parameter.size(); ++i) {
+			result = result.replaceAll("([^\\\\])\\$" + (i + 1) + "(\\D)", "$1"
+					+ parameter.get(i) + "$2");
+		}
+
+		if (node.getLocalName().equals("OptionsTemplatePrefix")) {
+			return new OptionsPrefix(result);
+		} else if (node.getLocalName().equals("OptionsTemplatePostfix")) {
+			return new OptionsPostfix(result);
+		}
+		throw new RuntimeException("Invalid node for parseOptionsTemplate: "
+				+ node.getLocalName() + " ; " + node.toString());
 	}
 
 	protected void parseOptions(Node node) {
@@ -212,6 +254,17 @@ public class Config {
 			if (cur.getLocalName().equals("ApacheModules")) {
 				parseApacheModules(cur);
 			}
+		}
+	}
+
+	protected void parseTemplates(Node node) {
+		for (Node cur = node.getFirstChild(); cur != null; cur = cur
+				.getNextSibling()) {
+			if (cur.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+			templates.put(cur.getAttributes().getNamedItem("name")
+					.getNodeValue(), cur.getTextContent());
 		}
 	}
 
