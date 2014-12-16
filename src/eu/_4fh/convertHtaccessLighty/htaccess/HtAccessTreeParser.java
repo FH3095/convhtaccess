@@ -49,6 +49,11 @@ public class HtAccessTreeParser {
 				return false;
 			}
 		});
+		if (null == subDirs) {
+			System.out.println("----- " + cur.getAbsolutePath()
+					+ " is not a valid path.");
+			return;
+		}
 		for (int i = 0; i < subDirs.length; ++i) {
 			doParseTree(subDirs[i], nestedLevel);
 		}
@@ -57,22 +62,27 @@ public class HtAccessTreeParser {
 	private class Callback implements HtAccessParser.SectionEventListener {
 		private final File curDir;
 		private final int nestedLevel;
+
 		private Callback(final File curDir, final int nestedLevel) {
 			this.curDir = curDir;
 			this.nestedLevel = nestedLevel;
 		}
+
 		@Override
 		public void preStartBlock(StringBuffer buf, TreeNode node) {
 		}
+
 		@Override
 		public void postStartBlock(StringBuffer buf, TreeNode node) {
 		}
+
 		@Override
 		public void preEndBlock(StringBuffer buf, TreeNode node) {
 			if (node.getType().equals(TreeNode.TYPE.ROOT)) {
 				doParseSubdirs(curDir, nestedLevel + 1);
 			}
 		}
+
 		@Override
 		public void postEndBlock(StringBuffer buf, TreeNode node) {
 		}
