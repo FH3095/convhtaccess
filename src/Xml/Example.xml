@@ -33,11 +33,9 @@ fastcgi.server += (
 			"/view/index.php$1$2",
 			)
 		</OptionsPrefix>
-		<OptionsTemplatesPostfix>
-			<Template name="PHPSocket">
-				<Parameter>example.org</Parameter>
-			</Template>
-		</OptionsTemplatesPostfix>
+		<OptionsTemplatePrefix name="PHPSocket">
+			<Parameter>example.org</Parameter>
+		</OptionsTemplatePrefix>
 	</Domain>
 	<Domain name="example.org" index="99">
 		<Redirect code="301" redirectWithPath="true">http://www.example.org/

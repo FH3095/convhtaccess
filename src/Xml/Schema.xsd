@@ -57,18 +57,18 @@
 								<xs:element name="DocRoot" type="xs:string" />
 								<xs:element name="Redirect" type="type_redirect" />
 							</xs:choice>
-							<xs:choice>
+							<xs:choice minOccurs="0" maxOccurs="unbounded">
 								<xs:element name="OptionsPrefix" type="xs:string"
-									minOccurs="0" maxOccurs="1" />
-								<xs:element name="OptionsTemplatesPrefix" type="type_OptionsTemplates"
-									minOccurs="0" maxOccurs="1">
+									minOccurs="0" maxOccurs="unbounded" />
+								<xs:element name="OptionsTemplatePrefix" type="type_OptionsTemplate"
+									minOccurs="0" maxOccurs="unbounded">
 								</xs:element>
 							</xs:choice>
-							<xs:choice>
+							<xs:choice minOccurs="0" maxOccurs="unbounded">
 								<xs:element name="OptionsPostfix" type="xs:string"
-									minOccurs="0" maxOccurs="1" />
-								<xs:element name="OptionsTemplatesPostfix" type="type_OptionsTemplates"
-									minOccurs="0" maxOccurs="1" />
+									minOccurs="0" maxOccurs="unbounded" />
+								<xs:element name="OptionsTemplatePostfix" type="type_OptionsTemplate"
+									minOccurs="0" maxOccurs="unbounded" />
 							</xs:choice>
 						</xs:sequence>
 						<xs:attribute name="regexType" type="type_regexType"
@@ -124,17 +124,11 @@
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
-	<xs:complexType name="type_OptionsTemplates">
+	<xs:complexType name="type_OptionsTemplate">
 		<xs:sequence>
-			<xs:element name="Template" minOccurs="1" maxOccurs="unbounded">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="Parameter" minOccurs="0" maxOccurs="unbounded"
-							type="xs:string" />
-					</xs:sequence>
-					<xs:attribute name="name" use="required" type="xs:string" />
-				</xs:complexType>
-			</xs:element>
+			<xs:element name="Parameter" minOccurs="0" maxOccurs="unbounded"
+				type="xs:string" />
 		</xs:sequence>
+		<xs:attribute name="name" use="required" type="xs:string" />
 	</xs:complexType>
 </xs:schema>
