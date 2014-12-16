@@ -9,6 +9,21 @@
 			<Module active="true">mod_rewrite.c</Module>
 		</ApacheModules>
 	</Options>
+	<Templates>
+		<Template name="PHPSocket">
+fastcgi.server += (
+	".php" => (
+		"php-$1" => (
+			"socket" => "/var/run/lighttpd/$1.sock",
+			"check-local" => "enable",
+			"broken-scriptfilename" => "enable",
+			"disable-time" => 1,
+			"allow-x-send-file" => "enable",
+		)
+	)
+)
+	</Template>
+	</Templates>
 	<Domain name="www.example.org" index="50">
 		<DocRoot>/home/me/domains/example.org/www</DocRoot>
 		<OptionsPrefix>url.rewrite-once = (
@@ -18,6 +33,11 @@
 			"/view/index.php$1$2",
 			)
 		</OptionsPrefix>
+		<OptionsTemplatesPostfix>
+			<Template name="PHPSocket">
+				<Parameter>example.org</Parameter>
+			</Template>
+		</OptionsTemplatesPostfix>
 	</Domain>
 	<Domain name="example.org" index="99">
 		<Redirect code="301" redirectWithPath="true">http://www.example.org/

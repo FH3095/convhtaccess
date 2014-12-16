@@ -16,7 +16,7 @@
 												<xs:simpleContent>
 													<xs:extension base="xs:string">
 														<xs:attribute name="active" type="type_boolean"
-															use="required"/>
+															use="required" />
 													</xs:extension>
 												</xs:simpleContent>
 											</xs:complexType>
@@ -26,11 +26,27 @@
 							</xs:element>
 						</xs:sequence>
 						<xs:attribute name="regexType" type="type_regexType"
-							use="required"/>
+							use="required" />
 						<xs:attribute name="prefix" type="type_domainPrefixPostfix"
-							use="required"/>
+							use="required" />
 						<xs:attribute name="postfix" type="type_domainPrefixPostfix"
-							use="required"/>
+							use="required" />
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="Templates" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Template" minOccurs="1" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="name" type="xs:string" use="required" />
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
 
@@ -38,23 +54,32 @@
 					<xs:complexType>
 						<xs:sequence>
 							<xs:choice minOccurs="1" maxOccurs="1">
-								<xs:element name="DocRoot" type="xs:string"/>
-								<xs:element name="Redirect" type="type_redirect"/>
+								<xs:element name="DocRoot" type="xs:string" />
+								<xs:element name="Redirect" type="type_redirect" />
 							</xs:choice>
-							<xs:element name="OptionsPrefix" type="xs:string"
-								minOccurs="0" maxOccurs="1"/>
-							<xs:element name="OptionsPostfix" type="xs:string"
-								minOccurs="0" maxOccurs="1"/>
+							<xs:choice>
+								<xs:element name="OptionsPrefix" type="xs:string"
+									minOccurs="0" maxOccurs="1" />
+								<xs:element name="OptionsTemplatesPrefix" type="type_OptionsTemplates"
+									minOccurs="0" maxOccurs="1">
+								</xs:element>
+							</xs:choice>
+							<xs:choice>
+								<xs:element name="OptionsPostfix" type="xs:string"
+									minOccurs="0" maxOccurs="1" />
+								<xs:element name="OptionsTemplatesPostfix" type="type_OptionsTemplates"
+									minOccurs="0" maxOccurs="1" />
+							</xs:choice>
 						</xs:sequence>
 						<xs:attribute name="regexType" type="type_regexType"
-							use="optional"/>
-						<xs:attribute name="name" type="xs:string" use="required"/>
+							use="optional" />
+						<xs:attribute name="name" type="xs:string" use="required" />
 						<xs:attribute name="index" type="type_domainIndex"
-							use="required"/>
+							use="required" />
 						<xs:attribute name="prefix" type="type_domainPrefixPostfix"
-							use="optional"/>
+							use="optional" />
 						<xs:attribute name="postfix" type="type_domainPrefixPostfix"
-							use="optional"/>
+							use="optional" />
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>
@@ -63,14 +88,14 @@
 
 	<xs:simpleType name="type_regexType">
 		<xs:restriction base="xs:string">
-			<xs:enumeration value="none"/>
-			<xs:enumeration value="withPort"/>
+			<xs:enumeration value="none" />
+			<xs:enumeration value="withPort" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="type_boolean">
 		<xs:restriction base="xs:string">
-			<xs:enumeration value="true"/>
-			<xs:enumeration value="false"/>
+			<xs:enumeration value="true" />
+			<xs:enumeration value="false" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="type_domainPrefixPostfix">
@@ -79,24 +104,37 @@
 	</xs:simpleType>
 	<xs:simpleType name="type_domainIndex">
 		<xs:restriction base="xs:nonNegativeInteger">
-			<xs:minInclusive value="000"/>
-			<xs:maxInclusive value="999"/>
+			<xs:minInclusive value="000" />
+			<xs:maxInclusive value="999" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="type_redirectCode">
 		<xs:restriction base="xs:nonNegativeInteger">
-			<xs:minInclusive value="300"/>
-			<xs:maxInclusive value="307"/>
+			<xs:minInclusive value="300" />
+			<xs:maxInclusive value="307" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="type_redirect">
 		<xs:simpleContent>
 			<xs:extension base="xs:string">
 				<xs:attribute name="code" type="type_redirectCode" use="optional"
-					default="301"/>
+					default="301" />
 				<xs:attribute name="redirectWithPath" type="type_boolean"
-					use="optional" default="false"/>
+					use="optional" default="false" />
 			</xs:extension>
 		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="type_OptionsTemplates">
+		<xs:sequence>
+			<xs:element name="Template" minOccurs="1" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Parameter" minOccurs="0" maxOccurs="unbounded"
+							type="xs:string" />
+					</xs:sequence>
+					<xs:attribute name="name" use="required" type="xs:string" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
 	</xs:complexType>
 </xs:schema>
