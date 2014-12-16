@@ -36,6 +36,7 @@ fastcgi.server += (
 		<OptionsTemplatePrefix name="PHPSocket">
 			<Parameter>example.org</Parameter>
 		</OptionsTemplatePrefix>
+		<OptionsPrefix>url.access-deny = ( ".hidden" )</OptionsPrefix>
 	</Domain>
 	<Domain name="example.org" index="99">
 		<Redirect code="301" redirectWithPath="true">http://www.example.org/
