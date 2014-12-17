@@ -65,7 +65,7 @@ public class Main {
 		StringBuffer buf = new StringBuffer();
 
 		createDomainCondition(buf, domain);
-		writeIndentLine(buf, 1, domain.textPrefix);
+		writeIndentLine(buf, 0, domain.textPrefix);
 
 		ListIterator<DomainOption> options = domain.domainOptions
 				.listIterator();
@@ -80,7 +80,7 @@ public class Main {
 			}
 		}
 
-		writeIndentLine(buf, 1, domain.textPostfix);
+		writeIndentLine(buf, 0, domain.textPostfix);
 		writeIndentLine(buf, 0, "}");
 
 		return buf.toString();

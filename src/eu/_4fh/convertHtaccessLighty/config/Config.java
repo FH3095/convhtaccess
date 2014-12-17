@@ -150,18 +150,22 @@ public class Config {
 					.getNamedItem("index").getNodeValue());
 			List<DomainOption> domainOptions = parseDomainOptions(node);
 
-			String optionsPrefix = "";
-			String optionsPostfix = "";
+			StringBuilder optionsPrefix = new StringBuilder();
+			StringBuilder optionsPostfix = new StringBuilder();
 			Iterator<DomainOption> domainOptionsIt = domainOptions.iterator();
 			while (domainOptionsIt.hasNext()) {
 				DomainOption option = domainOptionsIt.next();
 				boolean found = false;
 				if (option instanceof OptionsPrefix) {
-					optionsPrefix = ((OptionsPrefix) option).options;
+					optionsPrefix.append(
+							((OptionsPrefix) option).options.trim()).append(
+							"\n");
 					found = true;
 
 				} else if (option instanceof OptionsPostfix) {
-					optionsPostfix = ((OptionsPostfix) option).options;
+					optionsPostfix.append(
+							((OptionsPostfix) option).options.trim()).append(
+							"\n");
 					found = true;
 				}
 				if (found) {
@@ -170,8 +174,8 @@ public class Config {
 				}
 			}
 			domains.add(new Domain(name, index, filePrefix, filePostfix,
-					optionsPrefix, optionsPostfix, type, domainOptions
-							.toArray(new DomainOption[] {})));
+					optionsPrefix.toString(), optionsPostfix.toString(), type,
+					domainOptions.toArray(new DomainOption[] {})));
 		} else {
 			throw new RuntimeException(
 					"Found unsupported Node in Config-File: "
