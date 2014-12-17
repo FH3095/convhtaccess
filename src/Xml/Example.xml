@@ -11,7 +11,7 @@
 	</Options>
 	<Templates>
 		<Template name="PHPSocket">
-fastcgi.server += (
+fastcgi.server = (
 	".php" => (
 		"php-$1" => (
 			"socket" => "/var/run/lighttpd/$1.sock",
