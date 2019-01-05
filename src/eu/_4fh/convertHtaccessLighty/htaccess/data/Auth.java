@@ -33,6 +33,7 @@ public class Auth extends DataHandler {
 			if (!param.equalsIgnoreCase("valid-user")) {
 				throw new RuntimeException("Can only use require valid-user. " + line);
 			}
+			break;
 		default:
 			throw new ParseException("Not yet implemented: " + line);
 		}
