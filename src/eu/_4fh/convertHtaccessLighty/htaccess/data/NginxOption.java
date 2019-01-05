@@ -7,13 +7,13 @@ import java.util.regex.Pattern;
 
 import eu._4fh.convertHtaccessLighty.Main;
 
-public class LighttpdOption extends DataHandler {
+public class NginxOption extends DataHandler {
 	private final List<String> out;
-	private static final Pattern replacePattern = Pattern.compile("^##(Lighttpd|Lighty):",
+	private static final Pattern replacePattern = Pattern.compile("^##Nginx:",
 			Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
-	public LighttpdOption() {
-		super("##Lighttpd:", "##Lighty:");
+	public NginxOption() {
+		super("##Nginx:");
 		out = new LinkedList<String>();
 	}
 

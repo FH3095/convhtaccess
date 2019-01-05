@@ -1,34 +1,38 @@
 package eu._4fh.convertHtaccessLighty.htaccess.data;
 
+import java.util.Iterator;
+import java.util.List;
+
 import eu._4fh.convertHtaccessLighty.Main;
 
 public class Options extends DataHandler {
 	private Boolean indexes;
+
 	public Options() {
 		super("Options");
 		indexes = null;
 	}
 
 	@Override
-	public void parseCommand(String line) throws ParseException {
-		String[] parts = line.toLowerCase().replace("  ", " ").trim()
-				.split(" ", 0);
+	public void parseCommand(final String line) throws ParseException {
+		final List<String> parts = getCommandParameters(line, "options");
 		String error = "Unknown options: ";
 		boolean errorOccured = false;
-		for (int i = 1; i < parts.length; ++i) {
+		for (final Iterator<String> it = parts.iterator(); it.hasNext();) {
+			String part = it.next();
 			char start = ' ';
-			if (parts[i].startsWith("+")) {
+			if (part.startsWith("+")) {
 				start = '+';
-			} else if (parts[i].startsWith("-")) {
+			} else if (part.startsWith("-")) {
 				start = '-';
 			}
 			if (start != ' ') {
-				parts[i] = parts[i].substring(1);
+				part = part.substring(1);
 			}
 
-			if (parts[i].equals("none")) {
+			if (part.equals("none")) {
 				indexes = Boolean.FALSE;
-			} else if (parts[i].equals("indexes")) {
+			} else if (part.equals("indexes")) {
 				if (start == '+' || start == ' ') {
 					indexes = Boolean.TRUE;
 				} else {
@@ -36,7 +40,7 @@ public class Options extends DataHandler {
 				}
 			} else {
 				errorOccured = true;
-				error += parts[i] + ",";
+				error += part + ",";
 			}
 		}
 
@@ -45,15 +49,10 @@ public class Options extends DataHandler {
 		}
 	}
 
-	@Override
 	public void write(StringBuffer buf, int nestedLevel) {
 		if (indexes != null) {
 			Main.writeIndentLine(buf, nestedLevel, "dir-listing.activate = \"",
 					(indexes.equals(Boolean.TRUE) ? "enable\"" : "disable\""));
 		}
-	}
-
-	public Boolean getIndexes() {
-		return indexes;
 	}
 }

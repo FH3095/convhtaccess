@@ -3,6 +3,7 @@ package eu._4fh.convertHtaccessLighty.htaccess.data;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import eu._4fh.convertHtaccessLighty.Main;
 
@@ -21,55 +22,40 @@ public class Rewrite extends DataHandler {
 	}
 
 	@Override
-	public void parseCommand(String line) throws ParseException {
-		line = line.trim();
-		String lLine = line.toLowerCase();
-		if (lLine.startsWith("rewriteengine")) {
-			String onOff = removeQuotes(line
-					.substring("rewriteengine".length()).trim());
-			if (onOff.equalsIgnoreCase("on")) {
-				engineOn = Boolean.TRUE;
-			} else if (onOff.equalsIgnoreCase("off")) {
-				engineOn = Boolean.FALSE;
-			} else {
-				throw new ParseException(
-						"Unknown Parameter for RewriteEngine: " + onOff);
-			}
-		} else if (lLine.startsWith("rewritebase")) {
-			this.base = Main.quoteRegexString(removeQuotes(line.substring(
-					"rewritebase".length()).trim()));
-		} else if (lLine.startsWith("rewriterule")) {
+	public void parseCommand(final String line) throws ParseException {
+		final String command = getCommandFromLine(line);
+		switch (command) {
+		case "rewriteengine":
+			engineOn = parseBoolean(getCommandParameter(line, "rewriteengine"));
+			break;
+		case "rewritebase":
+			base = Pattern.quote(getCommandParameter(line, "rewritebase"));
+			break;
+		case "rewritecond":
+			ignoreNextRewriteRule = true;
+			throw new ParseException("Found RewriteCond \"" + line
+					+ "\". RewriteCond not implemented, so this RewriteCond AND the next RewriteRule are ignored.");
+		case "rewriterule":
 			if (base == null) {
-				throw new ParseException(
-						"RewriteRule without RewriteBase is not allowed.");
+				throw new ParseException("RewriteRule without RewriteBase is not allowed.");
 			}
 			if (ignoreNextRewriteRule) {
 				ignoreNextRewriteRule = false;
-				throw new ParseException("Ignored \"" + line
-						+ "\" because of previous RewriteCond.");
+				throw new ParseException("Ignored \"" + line + "\" because of previous RewriteCond.");
 			}
-			String parts[] = line.split("\\s+");
-			String rule = removeQuotes(parts[1].trim());
-			String target = removeQuotes(parts[2].trim());
+			final List<String> parts = getCommandParameters(line, "rewriterule");
+			final String rule = parts.get(0);
+			final String target = parts.get(1);
 			if (target.equals("-")) {
-				throw new ParseException(
-						"Ignored \""
-								+ line
-								+ "\" because you can't implement this in lighty-config.");
+				throw new ParseException("Ignored \"" + line + "\" because you can't implement this in lighty-config.");
 			}
 			rules.add(new RulePair(rule, target));
-		} else if (lLine.startsWith("rewritecond")) {
-			ignoreNextRewriteRule = true;
-			throw new ParseException(
-					"Found RewriteCond \""
-							+ line
-							+ "\". Lighty doesn't implement RewriteCond, so this RewriteCond AND the next RewriteRule are ignored.");
-		} else {
+			break;
+		default:
 			throw new ParseException("Unknown Rewrite-Command " + line);
 		}
 	}
 
-	@Override
 	public void write(StringBuffer buf, int nestedLevel) {
 		if (Boolean.TRUE.equals(engineOn)) {
 			Iterator<RulePair> it = rules.iterator();
@@ -80,18 +66,18 @@ public class Rewrite extends DataHandler {
 				if (rule.startsWith("^")) {
 					rule = "^" + base + rule.substring(1);
 				}
-				Main.writeIndentLine(buf, nestedLevel, "url.redirect = ( \"",
-						rule, "\" => \"", dest, "\" )");
+				Main.writeIndentLine(buf, nestedLevel, "url.redirect = ( \"", rule, "\" => \"", dest, "\" )");
 			}
 		}
 	}
 
 	static private class RulePair {
-		public RulePair(String rule, String dest) {
+		public RulePair(final String rule, final String dest) {
 			this.rule = rule;
 			this.dest = dest;
 		}
-		public String rule;
-		public String dest;
+
+		public final String rule;
+		public final String dest;
 	}
 }

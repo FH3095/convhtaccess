@@ -25,10 +25,8 @@ import eu._4fh.convertHtaccessLighty.config.options.DomainOption;
 import eu._4fh.convertHtaccessLighty.config.options.OptionsPostfix;
 import eu._4fh.convertHtaccessLighty.config.options.OptionsPrefix;
 import eu._4fh.convertHtaccessLighty.config.options.Redirect;
-import eu._4fh.convertHtaccessLighty.config.options.RegexType;
 
 public class Config {
-	private RegexType defaultRegexType;
 	private String defaultFilePrefix;
 	private String defaultFilePostfix;
 	private ArrayList<Domain> domains;
@@ -37,7 +35,6 @@ public class Config {
 	private Map<String, String> templates;
 
 	public Config() {
-		defaultRegexType = null;
 		defaultFilePrefix = null;
 		defaultFilePostfix = null;
 		inActiveModules = null;
@@ -48,14 +45,12 @@ public class Config {
 
 	public void readConfig(File configFile) {
 		try {
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory
-					.newInstance();
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			dbFactory.setNamespaceAware(true);
 			dbFactory.setValidating(true);
-			dbFactory.setAttribute(
-					"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-					XMLConstants.W3C_XML_SCHEMA_NS_URI); // Force to use XSD
-															// instead of DTD
+			dbFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+					XMLConstants.W3C_XML_SCHEMA_NS_URI); // Force to use XSD instead of DTD
+
 			DocumentBuilder builder = dbFactory.newDocumentBuilder();
 			builder.setErrorHandler(new ErrorHandler() {
 				@Override
@@ -65,23 +60,19 @@ public class Config {
 				}
 
 				@Override
-				public void fatalError(SAXParseException arg0)
-						throws SAXException {
-					throw new RuntimeException(
-							"Fatal Error while parsing config", arg0);
+				public void fatalError(SAXParseException arg0) throws SAXException {
+					throw new RuntimeException("Fatal Error while parsing config", arg0);
 				}
 
 				@Override
 				public void error(SAXParseException arg0) throws SAXException {
-					throw new RuntimeException("Error while parsing config",
-							arg0);
+					throw new RuntimeException("Error while parsing config", arg0);
 				}
 			});
 			Document doc = builder.parse(configFile);
 			doc.normalizeDocument();
 			Node root = doc.getElementsByTagNameNS("", "Domains").item(0);
-			for (Node cur = root.getFirstChild(); cur != null; cur = cur
-					.getNextSibling()) {
+			for (Node cur = root.getFirstChild(); cur != null; cur = cur.getNextSibling()) {
 				if (cur.getNodeType() != Node.ELEMENT_NODE) {
 					continue;
 				}
@@ -91,10 +82,6 @@ public class Config {
 		} catch (Exception e) {
 			throw new RuntimeException("Error while reading config", e);
 		}
-	}
-
-	public RegexType getDefaultRegexType() {
-		return defaultRegexType;
 	}
 
 	public String getDefaultFilePrefix() {
@@ -119,35 +106,22 @@ public class Config {
 
 	protected void xmlNodeToConfig(Node node) {
 		if (node.getLocalName().equals("Options")) {
-			defaultRegexType = parseRegexTypeAttribute(node.getAttributes()
-					.getNamedItem("regexType").getNodeValue());
-			defaultFilePrefix = node.getAttributes().getNamedItem("prefix")
-					.getNodeValue();
-			defaultFilePostfix = node.getAttributes().getNamedItem("postfix")
-					.getNodeValue();
+			defaultFilePrefix = node.getAttributes().getNamedItem("prefix").getNodeValue();
+			defaultFilePostfix = node.getAttributes().getNamedItem("postfix").getNodeValue();
 			parseOptions(node);
 		} else if (node.getLocalName().equals("Templates")) {
 			parseTemplates(node);
 		} else if (node.getLocalName().equals("Domain")) {
-			RegexType type = getDefaultRegexType();
-			if (node.getAttributes().getNamedItem("regexType") != null) {
-				type = parseRegexTypeAttribute(node.getAttributes()
-						.getNamedItem("regexType").getNodeValue());
-			}
 			String filePrefix = getDefaultFilePrefix();
 			if (node.getAttributes().getNamedItem("prefix") != null) {
-				filePrefix = node.getAttributes().getNamedItem("prefix")
-						.getNodeValue();
+				filePrefix = node.getAttributes().getNamedItem("prefix").getNodeValue();
 			}
 			String filePostfix = getDefaultFilePostfix();
 			if (node.getAttributes().getNamedItem("postfix") != null) {
-				filePostfix = node.getAttributes().getNamedItem("postfix")
-						.getNodeValue();
+				filePostfix = node.getAttributes().getNamedItem("postfix").getNodeValue();
 			}
-			String name = node.getAttributes().getNamedItem("name")
-					.getNodeValue();
-			short index = Short.parseShort(node.getAttributes()
-					.getNamedItem("index").getNodeValue());
+			String name = node.getAttributes().getNamedItem("name").getNodeValue();
+			short index = Short.parseShort(node.getAttributes().getNamedItem("index").getNodeValue());
 			List<DomainOption> domainOptions = parseDomainOptions(node);
 
 			StringBuilder optionsPrefix = new StringBuilder();
@@ -157,15 +131,11 @@ public class Config {
 				DomainOption option = domainOptionsIt.next();
 				boolean found = false;
 				if (option instanceof OptionsPrefix) {
-					optionsPrefix.append(
-							((OptionsPrefix) option).options.trim()).append(
-							"\n");
+					optionsPrefix.append(((OptionsPrefix) option).options.trim()).append("\n");
 					found = true;
 
 				} else if (option instanceof OptionsPostfix) {
-					optionsPostfix.append(
-							((OptionsPostfix) option).options.trim()).append(
-							"\n");
+					optionsPostfix.append(((OptionsPostfix) option).options.trim()).append("\n");
 					found = true;
 				}
 				if (found) {
@@ -173,20 +143,17 @@ public class Config {
 					domainOptionsIt = domainOptions.iterator();
 				}
 			}
-			domains.add(new Domain(name, index, filePrefix, filePostfix,
-					optionsPrefix.toString(), optionsPostfix.toString(), type,
-					domainOptions.toArray(new DomainOption[] {})));
+			domains.add(new Domain(name, index, filePrefix, filePostfix, optionsPrefix.toString(),
+					optionsPostfix.toString(), domainOptions.toArray(new DomainOption[] {})));
 		} else {
 			throw new RuntimeException(
-					"Found unsupported Node in Config-File: "
-							+ node.getNodeName() + " ; " + node.toString());
+					"Found unsupported Node in Config-File: " + node.getNodeName() + " ; " + node.toString());
 		}
 	}
 
 	protected List<DomainOption> parseDomainOptions(Node node) {
 		List<DomainOption> ret = new LinkedList<DomainOption>();
-		for (Node cur = node.getFirstChild(); cur != null; cur = cur
-				.getNextSibling()) {
+		for (Node cur = node.getFirstChild(); cur != null; cur = cur.getNextSibling()) {
 			if (cur.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
@@ -197,10 +164,9 @@ public class Config {
 
 	protected DomainOption parseDomainOption(Node node) {
 		if (node.getLocalName().equals("Redirect")) {
-			short code = Short.parseShort(node.getAttributes()
-					.getNamedItem("code").getNodeValue());
-			boolean withPath = Boolean.parseBoolean(node.getAttributes()
-					.getNamedItem("redirectWithPath").getNodeValue());
+			short code = Short.parseShort(node.getAttributes().getNamedItem("code").getNodeValue());
+			boolean withPath = Boolean
+					.parseBoolean(node.getAttributes().getNamedItem("redirectWithPath").getNodeValue());
 			return new Redirect(node.getTextContent().trim(), code, withPath);
 		} else if (node.getLocalName().equals("DocRoot")) {
 			return new DocRoot(node.getTextContent().trim());
@@ -212,32 +178,27 @@ public class Config {
 				|| node.getLocalName().equals("OptionsTemplatePostfix")) {
 			return parseOptionsTemplate(node);
 		}
-		throw new RuntimeException("Can't parse invalid Domain-Sub-Node "
-				+ node.getNodeName() + " ; " + node.toString());
+		throw new RuntimeException(
+				"Can't parse invalid Domain-Sub-Node " + node.getNodeName() + " ; " + node.toString());
 	}
 
 	private DomainOption parseOptionsTemplate(Node node) {
-		if (!templates.containsKey(node.getAttributes().getNamedItem("name")
-				.getTextContent())) {
+		if (!templates.containsKey(node.getAttributes().getNamedItem("name").getTextContent())) {
 			throw new RuntimeException("Can't find Template"
-					+ node.getAttributes().getNamedItem("name")
-							.getTextContent() + " ; " + node.toString());
+					+ node.getAttributes().getNamedItem("name").getTextContent() + " ; " + node.toString());
 		}
 
 		List<String> parameter = new ArrayList<String>();
-		for (Node cur = node.getFirstChild(); cur != null; cur = cur
-				.getNextSibling()) {
+		for (Node cur = node.getFirstChild(); cur != null; cur = cur.getNextSibling()) {
 			if (cur.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
 			parameter.add(cur.getTextContent());
 		}
 
-		String result = templates.get(node.getAttributes().getNamedItem("name")
-				.getTextContent());
+		String result = templates.get(node.getAttributes().getNamedItem("name").getTextContent());
 		for (int i = 0; i < parameter.size(); ++i) {
-			result = result.replaceAll("([^\\\\])\\$" + (i + 1) + "(\\D)", "$1"
-					+ parameter.get(i) + "$2");
+			result = result.replaceAll("([^\\\\])\\$" + (i + 1) + "(\\D)", "$1" + parameter.get(i) + "$2");
 		}
 
 		if (node.getLocalName().equals("OptionsTemplatePrefix")) {
@@ -245,13 +206,12 @@ public class Config {
 		} else if (node.getLocalName().equals("OptionsTemplatePostfix")) {
 			return new OptionsPostfix(result);
 		}
-		throw new RuntimeException("Invalid node for parseOptionsTemplate: "
-				+ node.getLocalName() + " ; " + node.toString());
+		throw new RuntimeException(
+				"Invalid node for parseOptionsTemplate: " + node.getLocalName() + " ; " + node.toString());
 	}
 
 	protected void parseOptions(Node node) {
-		for (Node cur = node.getFirstChild(); cur != null; cur = cur
-				.getNextSibling()) {
+		for (Node cur = node.getFirstChild(); cur != null; cur = cur.getNextSibling()) {
 			if (cur.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
@@ -262,26 +222,22 @@ public class Config {
 	}
 
 	protected void parseTemplates(Node node) {
-		for (Node cur = node.getFirstChild(); cur != null; cur = cur
-				.getNextSibling()) {
+		for (Node cur = node.getFirstChild(); cur != null; cur = cur.getNextSibling()) {
 			if (cur.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			templates.put(cur.getAttributes().getNamedItem("name")
-					.getNodeValue(), cur.getTextContent());
+			templates.put(cur.getAttributes().getNamedItem("name").getNodeValue(), cur.getTextContent());
 		}
 	}
 
 	protected void parseApacheModules(Node node) {
 		List<String> resultActive = new LinkedList<String>();
 		List<String> resultInActive = new LinkedList<String>();
-		for (Node cur = node.getFirstChild(); cur != null; cur = cur
-				.getNextSibling()) {
+		for (Node cur = node.getFirstChild(); cur != null; cur = cur.getNextSibling()) {
 			if (cur.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			if (cur.getAttributes().getNamedItem("active").getTextContent()
-					.trim().equalsIgnoreCase("true")) {
+			if (cur.getAttributes().getNamedItem("active").getTextContent().trim().equalsIgnoreCase("true")) {
 				resultActive.add(cur.getTextContent().trim());
 			} else {
 				resultInActive.add(cur.getTextContent().trim());
@@ -289,15 +245,5 @@ public class Config {
 		}
 		inActiveModules = resultInActive.toArray(new String[1]);
 		activeModules = resultActive.toArray(new String[1]);
-	}
-
-	protected RegexType parseRegexTypeAttribute(String attribute) {
-		if (attribute.equals("none")) {
-			return RegexType.NONE;
-		} else if (attribute.equals("withPort")) {
-			return RegexType.WITH_PORT;
-		}
-		throw new RuntimeException(
-				"Found ConfigAttribute RegexType with invalid string.");
 	}
 }

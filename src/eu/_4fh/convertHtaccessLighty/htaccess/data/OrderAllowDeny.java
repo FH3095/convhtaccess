@@ -6,6 +6,12 @@ import java.util.regex.Pattern;
 import eu._4fh.convertHtaccessLighty.Main;
 
 public class OrderAllowDeny extends DataHandler {
+	private static final Pattern DENY_FROM_ALL = Pattern.compile("^\\s*deny\\s+from\\s+all\\s*$",
+			Pattern.CASE_INSENSITIVE);
+	private static final Pattern ORDER_ALLOW_DENY = Pattern.compile("^\\s*order\\s+allow\\s*,\\s*deny\\s*$",
+			Pattern.CASE_INSENSITIVE);
+	private static final Pattern ORDER_DENY_ALLOW = Pattern.compile("^\\s*order\\s+deny\\s*,\\s*allow\\s*$",
+			Pattern.CASE_INSENSITIVE);
 	private boolean orderDenyLast;
 	private boolean denyAll;
 
@@ -15,53 +21,39 @@ public class OrderAllowDeny extends DataHandler {
 		denyAll = false;
 	}
 
-	private void parseOrder(String line) throws ParseException {
-		Matcher matcherAllowDeny = Pattern.compile(
-				"^\\s*order\\s+allow\\s*,\\s*deny\\s*$",
-				Pattern.CASE_INSENSITIVE).matcher(line);
-		Matcher matcherDenyAllow = Pattern.compile(
-				"^\\s*order\\s+deny\\s*,\\s*allow\\s*$",
-				Pattern.CASE_INSENSITIVE).matcher(line);
+	private boolean checkOrderIsDenyLast(final String line) throws ParseException {
+		final Matcher matcherAllowDeny = ORDER_ALLOW_DENY.matcher(line);
+		final Matcher matcherDenyAllow = ORDER_DENY_ALLOW.matcher(line);
 		if (matcherAllowDeny.matches()) {
-			orderDenyLast = true;
+			return true;
 		} else if (matcherDenyAllow.matches()) {
-			orderDenyLast = false;
+			return false;
 		} else {
 			throw new ParseException("Found invalid Order-Command " + line);
 		}
 	}
 
-	private void parseAllow(String line) throws ParseException {
-		throw new ParseException(
-				"Found Allow-Command, but lighty only knows Deny-Commands, so there is no way to implement Allow-Commands.");
-	}
-
-	private void parseDeny(String line) throws ParseException {
-		Matcher m = Pattern.compile("^deny\\s+from\\s+all$",
-				Pattern.CASE_INSENSITIVE).matcher(line);
-		if (!m.matches()) {
+	@Override
+	public void parseCommand(final String line) throws ParseException {
+		final String command = getCommandFromLine(line);
+		switch (command) {
+		case "order":
+			orderDenyLast = checkOrderIsDenyLast(line);
+			break;
+		case "allow":
 			throw new ParseException(
-					"Currently only \"deny from all\" is implemented.");
-		}
-		denyAll = true;
-	}
-
-	@Override
-	public void parseCommand(String line) throws ParseException {
-		line = line.toLowerCase().trim();
-		if (line.startsWith("order")) {
-			parseOrder(line);
-		} else if (line.startsWith("allow")) {
-			parseAllow(line);
-		} else if (line.startsWith("deny")) {
-			parseDeny(line);
-		} else {
-			throw new RuntimeException(
-					"Called OrderAllowDeny with invalid line " + line);
+					"Found Allow-Command, but lighty only knows Deny-Commands, so there is no way to implement Allow-Commands.");
+		case "deny":
+			if (!DENY_FROM_ALL.matcher(line).matches()) {
+				throw new ParseException("Currently only \"deny from all\" is implemented. " + line);
+			}
+			denyAll = true;
+			break;
+		default:
+			throw new ParseException("Not yet implemented: " + line);
 		}
 	}
 
-	@Override
 	public void write(StringBuffer buf, int nestedLevel) {
 		if (denyAll || orderDenyLast) {
 			Main.writeIndentLine(buf, nestedLevel, "url.access-deny = (\"\")");

@@ -3,7 +3,8 @@
 	xsi:SchemaLocation="http://www.4fh.eu/xml/ConvertHtaccessLighty/ http://www.4fh.eu/xml/ConvertHtaccessLighty.xsd"> -->
 <Domains xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Schema.xsd">
-	<Options regexType="withPort" postfix="-htaccess" prefix="">
+	<Options postfix="-htaccess" prefix=""
+		ServerSoftware="lighttpd">
 		<ApacheModules>
 			<Module active="false">mod_php5.c</Module>
 			<Module active="true">mod_rewrite.c</Module>
