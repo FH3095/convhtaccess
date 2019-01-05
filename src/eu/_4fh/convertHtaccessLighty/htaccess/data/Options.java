@@ -2,6 +2,7 @@ package eu._4fh.convertHtaccessLighty.htaccess.data;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import eu._4fh.convertHtaccessLighty.Main;
 
@@ -15,7 +16,7 @@ public class Options extends DataHandler {
 
 	@Override
 	public void parseCommand(final String line) throws ParseException {
-		final List<String> parts = getCommandParameters(line, "options");
+		final List<String> parts = getCommandParameters(line, "options", Pattern.compile("[^\\s,]+"));
 		String error = "Unknown options: ";
 		boolean errorOccured = false;
 		for (final Iterator<String> it = parts.iterator(); it.hasNext();) {
@@ -32,7 +33,7 @@ public class Options extends DataHandler {
 
 			if (part.equals("none")) {
 				indexes = Boolean.FALSE;
-			} else if (part.equals("indexes")) {
+			} else if (part.equalsIgnoreCase("indexes")) {
 				if (start == '+' || start == ' ') {
 					indexes = Boolean.TRUE;
 				} else {

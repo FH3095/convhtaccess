@@ -62,6 +62,11 @@ abstract public class DataHandler {
 	}
 
 	static final protected List<String> getCommandParameters(String line, String begin) throws ParseException {
+		return getCommandParameters(line, begin, NON_SPACE_PATTERN);
+	}
+
+	static final protected List<String> getCommandParameters(String line, String begin, final Pattern partPattern)
+			throws ParseException {
 		final List<String> result = new ArrayList<>();
 		line = line.trim();
 		begin = begin.trim();
@@ -71,7 +76,7 @@ abstract public class DataHandler {
 			throw new ParseException("Begin \'" + begin + "\' doesnt match in line " + line);
 		}
 		line = line.substring(begin.length()).trim();
-		final Matcher parameters = NON_SPACE_PATTERN.matcher(line);
+		final Matcher parameters = partPattern.matcher(line);
 		while (parameters.find()) {
 			final String part = parameters.group();
 			if (part.startsWith("\"")) {
